@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\User;
+use App\Http\Requests\ExhibitionRequest;
+use App\Http\Requests\CommentRequest;
 
 class ItemController extends Controller
 {
@@ -76,7 +79,7 @@ class ItemController extends Controller
      * URL: /sell
      * メソッド: POST (認証必須)
      */
-    public function store(Request $request)
+    public function store(ExhibitionRequest $request)
     {
         // 現在ログインしているユーザーのIDを取得して、商品データを保存します
         $item = Item::create([
@@ -97,5 +100,26 @@ class ItemController extends Controller
 
         // 商品一覧ページにリダイレクトしてメッセージを表示します
         return redirect('/')->with('success', '商品を出品しました。');
+    }
+
+    /**
+     * 商品にコメントを投稿するメソッド
+     * URL: /item/{item_id}/comment
+     * メソッド: POST (認証必須)
+     */
+    public function storeComment(CommentRequest $request, $item_id)
+    {
+        // 商品が存在するかを確認
+        $item = Item::findOrFail($item_id);
+
+        // コメントを保存
+        Comment::create([
+            'user_id' => auth()->id(), // 現在ログイン中のユーザーID
+            'item_id' => $item->id, // コメント対象の商品ID
+            'comment' => $request->input('comment'), // フォームから送信されたコメント内容
+        ]);
+
+        // 商品詳細ページにリダイレクトし、成功メッセージを表示する
+        return redirect()->route('items.show', $item_id)->with('success', 'コメントを投稿しました。');
     }
 }

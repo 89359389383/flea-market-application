@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Address;
 use App\Models\User;
+use App\Http\Requests\AddressRequest;
 
 class AddressController extends Controller
 {
@@ -40,7 +41,7 @@ class AddressController extends Controller
      * URL: /purchase/address/{item_id}
      * メソッド: POST
      */
-    public function update(Request $request, $item_id)
+    public function update(AddressRequest $request, $item_id)
     {
         // 現在ログインしているユーザーの情報を取得します。
         $user = User::find(auth()->id());

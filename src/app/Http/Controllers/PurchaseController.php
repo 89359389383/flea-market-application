@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Purchase;
 use App\Models\Item;
+use App\Http\Requests\PurchaseRequest;
 
 class PurchaseController extends Controller
 {
@@ -36,7 +37,7 @@ class PurchaseController extends Controller
      * URL: /purchase/{item_id}
      * メソッド: POST (認証必須)
      */
-    public function store(Request $request, $item_id)
+    public function store(PurchaseRequest $request, $item_id)
     {
         // データベースから購入する商品の情報を取得します（IDが一致しない場合はエラーを出す）
         $item = Item::findOrFail($item_id);

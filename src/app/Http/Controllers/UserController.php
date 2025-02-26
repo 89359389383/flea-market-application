@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request; // HTTPリクエストを受け取るために必要です
 use App\Models\User; // Userモデルを使用するためにインポートします
 use App\Models\Item; // Itemモデルを使用してユーザーの商品を取得します
+use App\Http\Requests\ProfileRequest;
 
 class UserController extends Controller
 {
@@ -42,7 +43,7 @@ class UserController extends Controller
      * URL: /mypage/profile
      * メソッド: POST (認証必須)
      */
-    public function update(Request $request)
+    public function update(ProfileRequest $request)
     {
         // 現在ログインしているユーザーの情報を取得します
         $user = User::find(auth()->id());

@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 // RequestクラスとUserモデルを使用できるようにします
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Support\Facades\Auth;  // 認証処理を行うために使用します
 use Illuminate\Support\Facades\Hash;  // パスワードのハッシュ化に使用します
 
@@ -27,7 +29,7 @@ class AuthController extends Controller
      * URL: /register
      * メソッド: POST
      */
-    public function store(Request $request)
+    public function store(RegisterRequest $request)
     {
         $user = User::create([
             'name' => $request->name,
@@ -58,7 +60,7 @@ class AuthController extends Controller
      * URL: /login
      * メソッド: POST
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         // フォームから送信されたメールアドレスとパスワードを取得して配列にします
         $credentials = $request->only('email', 'password');

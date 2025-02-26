@@ -56,6 +56,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store'); // 出品処理
     Route::get('/?tab=mylist', [ItemController::class, 'mylist'])->name('items.mylist'); // マイリスト(いいねした商品)
 
+    // コメント投稿
+    Route::post('/item/{item_id}/comment', [ItemController::class, 'storeComment'])
+        ->name('items.comment.store');
+
     // 購入、住所変更機能
     Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show'); // 購入画面表示
     Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store'); // 購入処理
