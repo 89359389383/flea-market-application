@@ -20,8 +20,11 @@ class UserController extends Controller
         // 現在ログインしているユーザーの情報を取得します
         $user = auth()->user();
 
+        // 出品した商品を取得
+        $products = $user->items;
+
         // ビュー(user/show.blade.php)にユーザー情報を渡して表示します
-        return view('user.show', ['user' => $user]);
+        return view('user.show', ['user' => $user, 'products' => $products]);
     }
 
     /**
@@ -60,7 +63,7 @@ class UserController extends Controller
         ]);
 
         // プロフィール更新後にプロフィールページにリダイレクトし、成功メッセージを表示します
-        return redirect()->route('profile.show')->with('success', 'プロフィールを更新しました。');
+        return redirect()->route('user.show')->with('success', 'プロフィールを更新しました。');
     }
 
     /**

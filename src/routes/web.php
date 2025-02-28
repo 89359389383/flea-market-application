@@ -35,11 +35,11 @@ Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('items.show
 // ===================
 
 // 会員登録
-Route::get('/register', [AuthController::class, 'showForm'])->name('register.show');
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register.show');
 Route::post('/register', [AuthController::class, 'store'])->name('register.store');
 
 // ログイン
-Route::get('/login', [AuthController::class, 'showForm'])->name('login.show');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 
 // ログアウト

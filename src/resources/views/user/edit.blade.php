@@ -9,27 +9,45 @@
 @section('content')
 <h1>プロフィール設定</h1>
 <div class="profile-section">
-    <div class="profile-image-container">
-        <div class="profile-image"></div>
-        <button class="image-select-button">画像を選択する</button>
-    </div>
-    <div class="input-group">
-        <label class="input-label" for="username">ユーザー名</label>
-        <input type="text" id="username" class="text-input">
-    </div>
-    <div class="input-group">
-        <label class="input-label" for="postal_code">郵便番号</label>
-        <input type="text" id="postal_code" class="text-input">
-    </div>
-    <div class="input-group">
-        <label class="input-label" for="address">住所</label>
-        <input type="text" id="address" class="text-input">
-    </div>
-    <div class="input-group">
-        <label class="input-label" for="building_name">建物名</label>
-        <input type="text" id="building_name" class="text-input">
-    </div>
+    <form action="{{ route('user.update') }}" method="POST" enctype="multipart/form-data">
+        @csrf
 
-    <button type="submit" class="submit-button">更新する</button>
+        <div class="profile-image-container">
+            <div class="profile-image">
+                @if ($user->profile_image)
+                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" class="profile-preview">
+                @else
+                <p>" "</p>
+                @endif
+            </div>
+            <input type="file" name="profile_image" class="image-select-button">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="name">ユーザー名</label>
+            <input type="text" id="name" name="name" class="text-input"
+                value="{{ old('name', $user->name) }}">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="postal_code">郵便番号</label>
+            <input type="text" id="postal_code" name="postal_code" class="text-input"
+                value="{{ old('postal_code', $user->postal_code) }}">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="address">住所</label>
+            <input type="text" id="address" name="address" class="text-input"
+                value="{{ old('address', $user->address) }}">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="building_name">建物名</label>
+            <input type="text" id="building_name" name="building_name" class="text-input"
+                value="{{ old('building_name', $user->building) }}">
+        </div>
+
+        <button type="submit" class="submit-button">更新する</button>
+    </form>
 </div>
 @endsection

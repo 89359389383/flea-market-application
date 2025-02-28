@@ -27,7 +27,6 @@ label {
     font-size: 14px;
 }
 
-input[type="text"],
 input[type="email"],
 input[type="password"] {
     width: 100%;

@@ -18,7 +18,7 @@ class AuthController extends Controller
      * URL: /register
      * メソッド: GET
      */
-    public function showForm()
+    public function showRegisterForm()
     {
         // ビュー(auth/register.blade.php)を表示します
         return view('auth.register');
@@ -41,7 +41,7 @@ class AuthController extends Controller
         Auth::login($user);
 
         // ユーザーをプロフィール設定ページにリダイレクトします
-        return redirect('/mypage/profile')->with('success', '会員登録が完了しました。');
+        return redirect()->route('user.edit');
     }
 
     /**

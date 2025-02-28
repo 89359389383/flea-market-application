@@ -13,7 +13,7 @@
             <div class="avatar"></div>
             <h1 class="username">{{ Auth::user()->name }}</h1>
         </div>
-        <a href="{{ route('profile.edit') }}" class="edit-button">プロフィールを編集</a>
+        <a href="{{ route('user.edit') }}" class="edit-button">プロフィールを編集</a>
     </div>
 
     <nav class="tabs">
