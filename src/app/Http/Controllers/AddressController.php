@@ -46,16 +46,8 @@ class AddressController extends Controller
         // 現在ログインしているユーザーの情報を取得します。
         $user = User::find(auth()->id());
 
-        // バリデーションはここでは記述しません。
-        // （このプロジェクトではバリデーションは別ファイルで行うように指定されているためです。）
-
-        // リクエストから新しい住所情報を取得して、ユーザー情報を更新します。
-        $user->postal_code = $request->input('postal_code'); // フォームから送信された郵便番号を取得
-        $user->address = $request->input('address'); // フォームから送信された住所を取得
-        $user->building = $request->input('building'); // フォームから送信された建物名を取得
-
-        // ユーザーの情報をデータベースに保存します。
-        $user->save();
+        // 住所情報を一括更新
+        $user->update($request->only(['postal_code', 'address', 'building']));
 
         // 商品購入画面にリダイレクトし、「住所を変更しました」というメッセージを表示します。
         return redirect("/purchase/{$item_id}")->with('success', '住所を変更しました。');

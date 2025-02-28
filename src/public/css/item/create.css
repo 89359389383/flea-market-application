@@ -1,0 +1,171 @@
+/* 全体のリセットやベース設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    color: #333;
+    background-color: #fff;
+}
+
+/* メインコンテンツ */
+.main-content {
+    max-width: 800px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+}
+
+.page-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+/* 商品フォーム全体 */
+.product-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* 商品画像セクション */
+.product-image-section {
+    border: 1px dashed #ccc;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+}
+
+.product-image-label {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+/* 画像選択ボタン */
+.product-image-input {
+    display: none;
+    /* 独自ボタンで操作するため非表示 */
+}
+
+.choose-image-button {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #fff;
+    color: #e60023;
+    /* サンプルで赤系 */
+    border: 1px solid #e60023;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.choose-image-button:hover {
+    background-color: #ffe6eb;
+}
+
+/* 商品詳細セクション */
+.product-details {
+    border-top: 1px solid #ccc;
+    padding-top: 1rem;
+}
+
+.details-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* カテゴリ表示 */
+.product-category {
+    margin-bottom: 1.5rem;
+}
+
+.category-label {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-tag {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 9999px;
+    border: 1px solid #e60023;
+    color: #e60023;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.category-tag:hover {
+    background-color: #ffe6eb;
+}
+
+/* 商品の状態 */
+.product-condition {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.condition-label {
+    font-weight: bold;
+}
+
+.condition-select {
+    width: 50%;
+    max-width: 300px;
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+}
+
+.product-form-section {
+    margin-bottom: 40px;
+}
+
+.product-form-section h2 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.product-form-group {
+    margin-bottom: 24px;
+}
+
+.product-form-group label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.product-form-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 16px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 16px;
+}
+
