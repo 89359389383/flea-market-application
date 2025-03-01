@@ -26,6 +26,9 @@ use Illuminate\Support\Facades\Auth;
 // 商品一覧
 Route::get('/', [ItemController::class, 'index'])->name('items.index');
 
+// 商品検索
+Route::get('/search', [ItemController::class, 'search'])->name('items.search');
+
 // 商品詳細
 Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('items.show');
 

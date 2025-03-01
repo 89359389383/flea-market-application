@@ -28,6 +28,26 @@ class ItemController extends Controller
         return view('items.index', ['items' => $items]);
     }
 
+    public function search(Request $request)
+    {
+        // ユーザーが入力した商品名を取得
+        $name = $request->input('name');
+
+        // 商品データを扱うためのクエリを準備
+        $query = Item::with('user')->where('sold', false);
+
+        // 商品名が入力されている場合、名前で部分一致検索を追加
+        if (!empty($name)) {
+            $query->where('name', 'like', "%$name%"); // 部分一致検索
+        }
+
+        // クエリを実行して商品一覧を取得
+        $items = $query->get();
+
+        // items/index.blade.php ビューに商品データを渡して表示します
+        return view('items.index', ['items' => $items, 'name' => $name]);
+    }
+
     /**
      * ユーザーが「いいね」した商品一覧ページを表示するメソッド
      * URL: /?tab=mylist

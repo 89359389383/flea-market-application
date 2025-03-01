@@ -21,7 +21,10 @@
         <!-- ログイン・会員登録ページでは非表示 -->
         @if (!Request::is('login') && !Request::is('register'))
         <div class="header-center">
-            <input type="text" class="search-input" placeholder="なにをお探しですか？" />
+            <form method="GET" action="{{ route('items.search') }}">
+                <input type="text" name="name" value="{{ request('name') }}" placeholder="なにをお探しですか？" class="search-input">
+                <button type="submit" class="search-button">検索</button>
+            </form>
         </div>
         <div class="header-right">
             <form method="POST" action="{{ route('logout') }}">
