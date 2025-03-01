@@ -8,22 +8,23 @@
 
 @section('content')
 <div class="container">
-    <div class="product-image">商品画像</div>
+    <div class="product-image">
+        <img src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : Storage::url($item->image) }}">
+    </div>
     <div class="product-details">
-        <h1 class="product-title">商品名がここに入る</h1>
-        <p class="brand-name">ブランド名</p>
-        <p class="price">¥47,000 (税込)</p>
+        <h1 class="product-title">{{ $item->name }}</h1>
+        <p class="brand-name">{{ $item->brand_name }}</p>
+        <p class="price">¥{{ number_format($item->price) }} (税込)</p>
 
         <div class="rating-section">
             <div>
                 <div class="stars">
-                    <span class="star">★</span>
+                    <span class="star">★</span> {{ $item->likes_count }}
                 </div>
-                <div class="star-count">3</div>
             </div>
             <div>
                 <div class="comment-icon">◎</div>
-                <div class="comment-count">1</div>
+                <div class="comment-count">{{ $item->comments_count }}</div>
             </div>
         </div>
 
@@ -31,10 +32,7 @@
 
         <h2 class="section-title">商品説明</h2>
         <div class="product-description">
-            <p>カラー：グレー</p>
-            <p>新品</p>
-            <p>商品の状態は良好です。傷もありません。</p>
-            <p>購入後、即発送いたします。</p>
+            <p>{{ $item->description }}</p>
         </div>
 
         <h2 class="section-title">商品の情報</h2>
@@ -42,36 +40,46 @@
             <div class="info-row">
                 <div class="info-label">カテゴリー</div>
                 <div class="info-value">
-                    <span class="tag">洋服</span>
-                    <span class="tag">メンズ</span>
+                    @foreach ($item->categories as $category)
+                    <span class="tag">{{ $category->name }}</span>
+                    @endforeach
                 </div>
             </div>
 
             <div class="info-row">
                 <div class="info-label">商品の状態</div>
-                <div class="info-value">良好</div>
+                <div class="info-value">{{ $item->condition }}</div>
             </div>
         </div>
 
         <h2 class="section-title">コメント</h2>
         <div class="comment-section">
-            <h3 class="comment-header">コメント (1)</h3>
+            <h3 class="comment-header">コメント ({{ $item->comments->count() }})</h3>
             <div class="comment-list">
+                @foreach ($item->comments as $comment)
                 <div class="comment">
-                    <div class="comment-avatar"></div>
+                    <div class="comment-avatar">
+                        <img src="{{ asset('storage/' . $comment->user->profile_image) }}" alt="{{ $comment->user->name }}">
+                    </div>
                     <div class="comment-content">
-                        <div class="comment-username">admin</div>
-                        <div class="comment-text">こちらにコメントが入ります。</div>
+                        <div class="comment-username">{{ $comment->user->name }}</div>
+                        <div class="comment-text">{{ $comment->comment }}</div>
                     </div>
                 </div>
+                @endforeach
             </div>
         </div>
 
+        @auth
         <h3 class="section-title">商品へのコメント</h3>
-        <div class="comment-form">
-            <textarea class="comment-input" placeholder="コメントを入力してください"></textarea>
-            <button class="comment-submit-button">コメントを送信する</button>
-        </div>
+        <form action="{{ route('items.comment', $item->id) }}" method="POST">
+            @csrf
+            <textarea class="comment-input" name="comment" placeholder="コメントを入力してください"></textarea>
+            <button type="submit" class="comment-submit-button">コメントを送信する</button>
+        </form>
+        @else
+        <p>コメントを投稿するには <a href="{{ route('login') }}">ログイン</a> してください。</p>
+        @endauth
     </div>
 </div>
 @endsection

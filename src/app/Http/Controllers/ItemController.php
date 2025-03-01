@@ -73,12 +73,10 @@ class ItemController extends Controller
      */
     public function show($id)
     {
-        // 指定されたIDの商品のデータを取得します
-        // 関連するユーザー情報も一緒に取得します
-        $item = Item::with(['user', 'categories'])->findOrFail($id);
+        // 商品データを取得（ユーザー、カテゴリ、いいね、コメント含む）
+        $item = Item::with(['user', 'categories', 'likes', 'comments.user'])->findOrFail($id);
 
-        // items/show.blade.php ビューに商品データを渡して表示します
-        return view('items.show', ['item' => $item]);
+        return view('items.show', compact('item'));
     }
 
     /**
