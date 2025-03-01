@@ -104,6 +104,7 @@ class ItemController extends Controller
 
         // 商品データをデータベースに保存
         try {
+            $imagePath = $request->file('image')->store('items', 'public');
             $item = Item::create([
                 'user_id' => auth()->id(),
                 'name' => $request->input('name'),
@@ -112,7 +113,7 @@ class ItemController extends Controller
                 'condition' => $request->input('condition'),
                 'price' => $request->input('price'),
                 'sold' => false,
-                'image' => $imagePath,
+                'image' => 'items/' . basename($imagePath), // パスを items/ + ファイル名 に修正
             ]);
 
             Log::info('商品データ保存成功', ['item_id' => $item->id]);

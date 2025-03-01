@@ -16,9 +16,7 @@
     @foreach ($items as $item)
     <div class="product-item">
         <a href="{{ route('items.show', $item->id) }}">
-            <img
-                src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : asset('storage/items/' . $item->image) }}"
-                alt="{{ $item->name }}"
+            <img src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : Storage::url($item->image) }}"
                 class="product-image">
             <div class="product-info">
                 <span class="product-name">{{ $item->name }}</span>
