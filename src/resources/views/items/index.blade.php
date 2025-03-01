@@ -13,11 +13,18 @@
 </nav>
 
 <div class="product-grid">
-    @for ($i = 0; $i < 7; $i++)
-        <div class="product-item">
-        <div class="product-image">商品画像</div>
-        <div class="product-name">商品名</div>
-</div>
-@endfor
+    @foreach ($items as $item)
+    <div class="product-item">
+        <a href="{{ route('items.show', $item->id) }}">
+            <img
+                src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : asset('storage/items/' . $item->image) }}"
+                alt="{{ $item->name }}"
+                class="product-image">
+            <div class="product-info">
+                <span class="product-name">{{ $item->name }}</span>
+            </div>
+        </a>
+    </div>
+    @endforeach
 </div>
 @endsection

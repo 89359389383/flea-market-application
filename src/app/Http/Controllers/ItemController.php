@@ -9,6 +9,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Http\Requests\ExhibitionRequest;
 use App\Http\Requests\CommentRequest;
+use Illuminate\Support\Facades\Log;
 
 class ItemController extends Controller
 {
@@ -79,26 +80,54 @@ class ItemController extends Controller
      * URL: /sell
      * メソッド: POST (認証必須)
      */
+
     public function store(ExhibitionRequest $request)
     {
-        // 現在ログインしているユーザーのIDを取得して、商品データを保存します
-        $item = Item::create([
+        // リクエストデータをログに記録
+        Log::info('商品出品リクエストを受信', [
             'user_id' => auth()->id(),
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'brand_name' => $request->input('brand_name'),
-            'condition' => $request->input('condition'),
-            'price' => $request->input('price'),
-            'sold' => false, // 初期状態は未販売（false）
-            'image' => $request->hasFile('image') // リクエストに画像ファイルが含まれているかを確認します
-                ? $request->file('image')->store('images', 'public') // 画像ファイルを storage/app/public/images フォルダに保存し、その保存先のパスを取得します。'images' は保存先フォルダ名です。'public' は public ディスクを使うことを意味します
-                : null, // 画像がなければ null を設定します
+            'request_data' => $request->all()
         ]);
 
-        // 選択されたカテゴリを関連付けます
-        $item->categories()->attach($request->input('categories'));
+        // 画像のアップロード処理
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            try {
+                $imagePath = $request->file('image')->store('items', 'public');
+                Log::info('画像アップロード成功', ['image_path' => $imagePath]);
+            } catch (\Exception $e) {
+                Log::error('画像アップロードエラー', ['error' => $e->getMessage()]);
+            }
+        } else {
+            Log::warning('画像未選択のため、nullで登録');
+        }
 
-        // 商品一覧ページにリダイレクトしてメッセージを表示します
+        // 商品データをデータベースに保存
+        try {
+            $item = Item::create([
+                'user_id' => auth()->id(),
+                'name' => $request->input('name'),
+                'description' => $request->input('description'),
+                'brand_name' => $request->input('brand_name'),
+                'condition' => $request->input('condition'),
+                'price' => $request->input('price'),
+                'sold' => false,
+                'image' => $imagePath,
+            ]);
+
+            Log::info('商品データ保存成功', ['item_id' => $item->id]);
+        } catch (\Exception $e) {
+            Log::error('商品データ保存エラー', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', '商品登録中にエラーが発生しました。');
+        }
+
+        // カテゴリーをIDの配列として取得
+        $categories = $request->input('categories', []);
+        if (!empty($categories)) {
+            $item->categories()->attach($categories);
+        }
+
+        // 商品一覧ページにリダイレクト
         return redirect('/')->with('success', '商品を出品しました。');
     }
 

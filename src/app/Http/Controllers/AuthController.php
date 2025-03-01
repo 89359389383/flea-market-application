@@ -68,7 +68,7 @@ class AuthController extends Controller
         // 認証を試みます (認証に成功すれば true を返します)
         if (Auth::attempt($credentials)) {
             // 認証に成功した場合、ユーザーをトップページにリダイレクトします
-            return redirect('/')->with('success', 'ログインに成功しました。');
+            return redirect('/');
         }
 
         // 認証に失敗した場合、ログインページにリダイレクトし、エラーメッセージを表示します

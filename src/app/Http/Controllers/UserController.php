@@ -21,10 +21,10 @@ class UserController extends Controller
         $user = auth()->user();
 
         // 出品した商品を取得
-        $products = $user->items;
+        $items = $user->items;
 
         // ビュー(user/show.blade.php)にユーザー情報を渡して表示します
-        return view('user.show', ['user' => $user, 'products' => $products]);
+        return view('user.show', ['user' => $user, 'items' => $items]);
     }
 
     /**

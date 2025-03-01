@@ -22,7 +22,7 @@
     </nav>
 
     <div class="products-grid">
-        @foreach ($products as $product)
+        @foreach ($items as $item)
         <a href="{{ route('products.show', $product->id) }}" class="product-card">
             <div class="product-image">
                 <img src="{{ asset('storage/products/' . $product->image) }}" alt="{{ $product->name }}">
