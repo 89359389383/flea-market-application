@@ -20,10 +20,17 @@ class ItemController extends Controller
      * URL: /
      * メソッド: GET
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::with('user')->get(); // sold = true も含めて取得
-        return view('items.index', ['items' => $items]);
+        // タブのパラメータを取得
+        $tab = $request->query('tab', 'recommend');
+
+        if ($tab === 'mylist') {
+            return $this->mylist();
+        }
+
+        $items = Item::with('user')->get();
+        return view('items.index', ['items' => $items, 'tab' => $tab]);
     }
 
     public function search(Request $request)
@@ -53,15 +60,56 @@ class ItemController extends Controller
      */
     public function mylist()
     {
-        // 現在ログインしているユーザーを取得します
-        $user = User::find(auth()->id()); // 現在のユーザーをUserモデルから取得
+        // ログインユーザーの取得
+        $user = Auth::user();
 
-        // ユーザーが「いいね」した商品を取得します
-        // 'with'メソッドで関連するユーザー情報も取得します
-        $items = $user->likes()->with('user')->get();
+        if (!$user) {
+            Log::warning('未ログインユーザーがマイリストを開こうとしました。', [
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->header('User-Agent')
+            ]);
+            return redirect()->route('login')->with('error', 'マイリストを見るにはログインが必要です。');
+        }
 
-        // items/index.blade.php ビューに商品データを渡して表示します
-        return view('items.index', ['items' => $items]);
+        try {
+            // いいねした商品のIDリストを取得
+            $likedItemIds = $user->likes()->pluck('item_id');
+
+            // いいねした商品のみ取得
+            $items = Item::whereIn('id', $likedItemIds)->with('user')->get();
+
+            // 取得した商品の詳細を配列に整形
+            $itemsData = $items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'price' => $item->price,
+                    'sold' => $item->sold ? '売却済み' : '販売中',
+                    'created_at' => $item->created_at->toDateTimeString(),
+                ];
+            });
+
+            // ログに詳細情報を記録
+            Log::info('マイリストの商品を取得しました。', [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'request_ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
+                'total_likes' => $items->count(),
+                'items' => $itemsData
+            ]);
+
+            return view('items.index', ['items' => $items, 'tab' => 'mylist']);
+        } catch (\Exception $e) {
+            Log::error('マイリストの取得中にエラーが発生しました。', [
+                'user_id' => $user->id,
+                'error_message' => $e->getMessage(),
+                'request_ip' => request()->ip(),
+                'user_agent' => request()->header('User-Agent')
+            ]);
+
+            return redirect()->back()->with('error', 'マイリストを取得できませんでした。');
+        }
     }
 
     /**
