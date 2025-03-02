@@ -20,7 +20,7 @@ class CreatePurchasesTable extends Migration
             $table->string('postal_code', 20);
             $table->string('address', 255);
             $table->string('building', 255);
-            $table->enum('payment_method', ['コンビニ支払い', 'カード支払い']);
+            $table->enum('payment_method', ['コンビニ払い', 'カード払い']);
             $table->timestamps();
         });
     }

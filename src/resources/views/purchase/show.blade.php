@@ -20,15 +20,6 @@
         </div>
 
         <div class="section">
-            <h2 class="section-title">支払い方法</h2>
-            <select name="payment_method" id="payment-method">
-                <option value="">選択してください</option>
-                <option value="コンビニ払い">コンビニ払い</option>
-                <option value="カード払い">カード払い</option>
-            </select>
-        </div>
-
-        <div class="section">
             <h2 class="section-title">配送先</h2>
             <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">変更する</a>
             <div class="address">
@@ -40,18 +31,41 @@
     </div>
 
     <div class="sidebar">
-        <div class="summary-box">
-            <div class="summary-row">
-                <div class="summary-label">商品代金</div>
-                <div class="summary-value">¥{{ number_format($item->price) }}</div>
-            </div>
-            <div class="summary-row">
-                <div class="summary-label">支払い方法</div>
-                <div class="summary-value" id="selected-payment-method">選択してください</div>
-            </div>
-        </div>
         <form action="{{ route('purchase.store', ['item_id' => $item->id]) }}" method="POST">
             @csrf
+            <div class="section">
+                <h2 class="section-title">支払い方法</h2>
+                <select name="payment_method" id="payment-method" required>
+                    <option value="">選択してください</option>
+                    <option value="コンビニ払い">コンビニ払い</option>
+                    <option value="カード払い">カード払い</option>
+                </select>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">配送先</h2>
+                <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">変更する</a>
+                <div class="address">
+                    <input type="hidden" name="postal_code" value="{{ $user->postal_code }}">
+                    <input type="hidden" name="address" value="{{ $user->address }}">
+                    <input type="hidden" name="building" value="{{ $user->building }}">
+                    〒 {{ $user->postal_code }}<br>
+                    {{ $user->address }}<br>
+                    {{ $user->building }}
+                </div>
+            </div>
+
+            <div class="summary-box">
+                <div class="summary-row">
+                    <div class="summary-label">商品代金</div>
+                    <div class="summary-value">¥{{ number_format($item->price) }}</div>
+                </div>
+                <div class="summary-row">
+                    <div class="summary-label">支払い方法</div>
+                    <div class="summary-value" id="selected-payment-method">選択してください</div>
+                </div>
+            </div>
+
             <button class="purchase-button">購入する</button>
         </form>
     </div>
