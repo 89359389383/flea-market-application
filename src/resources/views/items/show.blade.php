@@ -32,8 +32,10 @@
                 <div class="comment-count">{{ $item->comments_count }}</div>
             </div>
         </div>
-
-        <button class="purchase-button">購入手続きへ</button>
+        　　　　
+        <form action="{{ route('purchase.show', ['item_id' => $item->id]) }}" method="GET">
+            <button type="submit" class="purchase-button">購入手続きへ</button>
+        </form>
 
         <h2 class="section-title">商品説明</h2>
         <div class="product-description">

@@ -49,7 +49,7 @@ class AddressController extends Controller
         // 住所情報を一括更新
         $user->update($request->only(['postal_code', 'address', 'building']));
 
-        // 商品購入画面にリダイレクトし、「住所を変更しました」というメッセージを表示します。
-        return redirect("/purchase/{$item_id}")->with('success', '住所を変更しました。');
+        // 商品購入画面にリダイレクト
+        return redirect("/purchase/{$item_id}");
     }
 }
