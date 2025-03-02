@@ -29,7 +29,18 @@ class ItemController extends Controller
             return $this->mylist();
         }
 
-        $items = Item::with('user')->get();
+        // 現在のユーザーを取得
+        $user = Auth::user();
+
+        // 自分が出品した商品を除外
+        $query = Item::with('user');
+
+        if ($user) {
+            $query->where('user_id', '!=', $user->id);
+        }
+
+        $items = $query->get();
+
         return view('items.index', ['items' => $items, 'tab' => $tab]);
     }
 
