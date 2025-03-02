@@ -59,6 +59,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store'); // 出品処理
     Route::get('/?tab=mylist', [ItemController::class, 'mylist'])->name('items.mylist'); // マイリスト(いいねした商品)
 
+    // いいね機能
+    Route::post('/items/{id}/toggle-like', [ItemController::class, 'toggleLike'])
+        ->name('items.toggleLike');
+
     // コメント投稿
     Route::post('/item/{item_id}/comment', [ItemController::class, 'storeComment'])
         ->name('items.comment.store');

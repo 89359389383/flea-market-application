@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Http\Requests\ExhibitionRequest;
 use App\Http\Requests\CommentRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Like;
 
 class ItemController extends Controller
 {
@@ -76,6 +78,12 @@ class ItemController extends Controller
         // 商品データを取得（ユーザー、カテゴリ、いいね、コメント含む）
         $item = Item::with(['user', 'categories', 'likes', 'comments.user'])->findOrFail($id);
 
+        // カテゴリー情報をログに記録
+        Log::info('商品詳細ページ表示', [
+            'item_id' => $item->id,
+            'categories' => $item->categories // カテゴリー情報をログに追加
+        ]);
+
         return view('items.show', compact('item'));
     }
 
@@ -122,7 +130,6 @@ class ItemController extends Controller
 
         // 商品データをデータベースに保存
         try {
-            $imagePath = $request->file('image')->store('items', 'public');
             $item = Item::create([
                 'user_id' => auth()->id(),
                 'name' => $request->input('name'),
@@ -131,23 +138,42 @@ class ItemController extends Controller
                 'condition' => $request->input('condition'),
                 'price' => $request->input('price'),
                 'sold' => false,
-                'image' => 'items/' . basename($imagePath), // パスを items/ + ファイル名 に修正
+                'image' => 'items/' . basename($imagePath),
             ]);
 
             Log::info('商品データ保存成功', ['item_id' => $item->id]);
+
+            // 🔽 カテゴリーを保存する処理（修正後）
+            $categories = $request->input('categories', []); // 選択したカテゴリを取得
+            Log::info('選択したカテゴリ（取得直後）', ['categories' => $categories]);
+
+            if (!empty($categories)) {
+                // `$categories` が文字列の場合は explode() で配列に変換
+                if (is_string($categories)) {
+                    $categories = explode(',', $categories);
+                }
+
+                // `$categories` が配列の中にカンマ区切りの文字列を持っている場合（["2,3,4"] みたいな形）
+                if (count($categories) === 1 && is_string($categories[0]) && str_contains($categories[0], ',')) {
+                    $categories = explode(',', $categories[0]);
+                }
+
+                // 各カテゴリIDを整数型に変換
+                $categories = array_map('intval', $categories);
+                Log::info('整数に変換したカテゴリ', ['categories' => $categories]);
+
+                // カテゴリを保存
+                $item->categories()->attach($categories);
+                Log::info('カテゴリを保存しました', ['item_id' => $item->id, 'categories' => $categories]);
+            } else {
+                Log::warning('カテゴリが選択されていません');
+            }
+
+            return redirect('/')->with('success', '商品を出品しました。');
         } catch (\Exception $e) {
             Log::error('商品データ保存エラー', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', '商品登録中にエラーが発生しました。');
         }
-
-        // カテゴリーをIDの配列として取得
-        $categories = $request->input('categories', []);
-        if (!empty($categories)) {
-            $item->categories()->attach($categories);
-        }
-
-        // 商品一覧ページにリダイレクト
-        return redirect('/')->with('success', '商品を出品しました。');
     }
 
     /**
@@ -169,5 +195,25 @@ class ItemController extends Controller
 
         // 商品詳細ページにリダイレクトし、成功メッセージを表示する
         return redirect()->route('items.show', $item_id)->with('success', 'コメントを投稿しました。');
+    }
+
+    public function toggleLike($id)
+    {
+        $item = Item::findOrFail($id);
+        $user = Auth::user();
+
+        // 既にいいねしている場合は解除
+        if ($item->likes()->where('user_id', $user->id)->exists()) {
+            $item->likes()->where('user_id', $user->id)->delete();
+            return redirect()->back()->with('success', 'いいねを解除しました。');
+        }
+
+        // いいねを追加
+        Like::create([
+            'user_id' => $user->id,
+            'item_id' => $item->id,
+        ]);
+
+        return redirect()->back()->with('success', 'いいねしました！');
     }
 }

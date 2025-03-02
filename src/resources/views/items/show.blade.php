@@ -18,9 +18,14 @@
 
         <div class="rating-section">
             <div>
-                <div class="stars">
-                    <span class="star">★</span> {{ $item->likes_count }}
-                </div>
+                <!-- いいねボタン -->
+                <form action="{{ route('items.toggleLike', $item->id) }}" method="POST">
+                    @csrf
+                    <button type="submit" class="like-button {{ auth()->user() && $item->likes->contains('user_id', auth()->id()) ? 'liked' : '' }}">
+                        ❤️
+                    </button>
+                </form>
+                <span class="like-count">{{ $item->likes->count() }}</span>
             </div>
             <div>
                 <div class="comment-icon">◎</div>
@@ -72,7 +77,7 @@
 
         @auth
         <h3 class="section-title">商品へのコメント</h3>
-        <form action="{{ route('items.comment', $item->id) }}" method="POST">
+        <form action="{{ route('items.comment.store', $item->id) }}" method="POST">
             @csrf
             <textarea class="comment-input" name="comment" placeholder="コメントを入力してください"></textarea>
             <button type="submit" class="comment-submit-button">コメントを送信する</button>

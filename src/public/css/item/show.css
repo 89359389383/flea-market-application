@@ -212,3 +212,15 @@ textarea {
 .submit-button:hover {
     background-color: #ff3333;
 }
+
+.like-button {
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: gray;
+}
+
+.like-button.liked {
+    color: red;
+}
