@@ -200,9 +200,13 @@ class ItemController extends Controller
     public function toggleLike($id)
     {
         $item = Item::findOrFail($id);
-        $user = Auth::user();
+        $user = auth()->user();
 
-        // 既にいいねしている場合は解除
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'いいねをするにはログインが必要です。');
+        }
+
+        // 既にいいねしている場合は削除（解除）
         if ($item->likes()->where('user_id', $user->id)->exists()) {
             $item->likes()->where('user_id', $user->id)->delete();
             return redirect()->back()->with('success', 'いいねを解除しました。');

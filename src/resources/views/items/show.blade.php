@@ -22,7 +22,7 @@
                 <form action="{{ route('items.toggleLike', $item->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="like-button {{ auth()->user() && $item->likes->contains('user_id', auth()->id()) ? 'liked' : '' }}">
-                        ❤️
+                        ☆
                     </button>
                 </form>
                 <span class="like-count">{{ $item->likes->count() }}</span>
