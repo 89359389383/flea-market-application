@@ -77,6 +77,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/mypage', [UserController::class, 'show'])->name('user.show'); // プロフィール画面
     Route::get('/mypage/profile', [UserController::class, 'edit'])->name('user.edit'); // プロフィール編集画面表示
     Route::post('/mypage/profile', [UserController::class, 'update'])->name('user.update'); // プロフィール編集処理
-    Route::get('/mypage?tab=buy', [UserController::class, 'buyList'])->name('user.buyList'); // 購入した商品一覧
-    Route::get('/mypage?tab=sell', [UserController::class, 'sellList'])->name('user.sellList'); // 出品した商品一覧
+    Route::get('/mypage/buy', [UserController::class, 'buyList'])->name('user.buyList');
+    Route::get('/mypage/sell', [UserController::class, 'sellList'])->name('user.sellList');
 });

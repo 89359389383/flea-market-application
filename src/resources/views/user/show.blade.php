@@ -27,7 +27,7 @@
 
     <nav class="tabs">
         <a href="{{ route('user.sellList') }}" class="tab {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
-        <a href="{{ url('/mypage?tab=buy') }}" class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
+        <a href="{{ route('user.buyList') }}" class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
     </nav>
 
     <div class="product-grid">
