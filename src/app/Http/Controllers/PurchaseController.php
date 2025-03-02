@@ -56,6 +56,6 @@ class PurchaseController extends Controller
         $item->update(['sold' => true]);
 
         // 購入が完了した後、ユーザーを商品一覧ページにリダイレクトし、成功メッセージを表示します。
-        return redirect('/')->with('success', '商品を購入しました。');
+        return redirect('/');
     }
 }

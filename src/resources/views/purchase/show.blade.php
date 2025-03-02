@@ -21,10 +21,10 @@
 
         <div class="section">
             <h2 class="section-title">支払い方法</h2>
-            <select name="payment_method">
-                <option>選択してください</option>
-                <option value="convenience">コンビニ払い</option>
-                <option value="card">カード払い</option>
+            <select name="payment_method" id="payment-method">
+                <option value="">選択してください</option>
+                <option value="コンビニ払い">コンビニ払い</option>
+                <option value="カード払い">カード払い</option>
             </select>
         </div>
 
@@ -47,10 +47,24 @@
             </div>
             <div class="summary-row">
                 <div class="summary-label">支払い方法</div>
-                <div class="summary-value">コンビニ払い</div>
+                <div class="summary-value" id="selected-payment-method">選択してください</div>
             </div>
         </div>
-        <button class="purchase-button">購入する</button>
+        <form action="{{ route('purchase.store', ['item_id' => $item->id]) }}" method="POST">
+            @csrf
+            <button class="purchase-button">購入する</button>
+        </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const paymentSelect = document.getElementById("payment-method");
+        const paymentDisplay = document.getElementById("selected-payment-method");
+
+        paymentSelect.addEventListener("change", function() {
+            paymentDisplay.textContent = paymentSelect.value ? paymentSelect.value : "選択してください";
+        });
+    });
+</script>
 @endsection
