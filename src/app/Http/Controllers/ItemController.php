@@ -22,11 +22,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        // 全ての商品のデータをデータベースから取得します
-        // 'with'メソッドで関連するユーザー情報も取得します
-        $items = Item::with('user')->where('sold', false)->get();
-
-        // items/index.blade.php ビューに商品データを渡して表示します
+        $items = Item::with('user')->get(); // sold = true も含めて取得
         return view('items.index', ['items' => $items]);
     }
 

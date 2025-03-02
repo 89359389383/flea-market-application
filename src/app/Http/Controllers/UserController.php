@@ -7,6 +7,7 @@ use Illuminate\Http\Request; // HTTPリクエストを受け取るために必�
 use App\Models\User; // Userモデルを使用するためにインポートします
 use App\Models\Item; // Itemモデルを使用してユーザーの商品を取得します
 use App\Http\Requests\ProfileRequest;
+use Illuminate\Support\Facades\Log; // Logクラスをインポート
 
 class UserController extends Controller
 {
@@ -24,7 +25,11 @@ class UserController extends Controller
         $items = $user->items;
 
         // ビュー(user/show.blade.php)にユーザー情報を渡して表示します
-        return view('user.show', ['user' => $user, 'items' => $items]);
+        return view('user.show', [
+            'user' => $user,
+            'items' => $items,
+            'tab' => 'sell' // デフォルト値として "sell" をセット
+        ]);
     }
 
     /**
@@ -73,14 +78,29 @@ class UserController extends Controller
      */
     public function buyList()
     {
-        // 現在ログインしているユーザーを取得します
-        $user = User::find(auth()->id()); // 現在のユーザーをUserモデルから取得
+        // 現在のユーザーを取得
+        $user = auth()->user();
+        Log::info('現在のユーザー情報:', ['user_id' => $user->id, 'user_name' => $user->name]);
 
-        // ユーザーが購入した商品をデータベースから取得します
-        $items = $user->purchases()->with('item')->get();
+        // ユーザーが購入した商品のみ取得（購入履歴の item データ）
+        try {
+            $purchasedItems = $user->purchases()->with('item')->get()->map(function ($purchase) {
+                return $purchase->item;
+            });
+            Log::info('購入履歴の取得に成功:', ['items_count' => $purchasedItems->count()]);
+        } catch (\Exception $e) {
+            Log::error('購入履歴の取得中にエラーが発生:', ['error_message' => $e->getMessage()]);
+            return redirect()->route('user.show')->with('error', '購入履歴の取得中にエラーが発生しました。');
+        }
 
-        // ビュー(user/show.blade.php)に商品データを渡して表示します
-        return view('user.show', ['items' => $items, 'tab' => 'buy']);
+        // デバッグ用ログ（不要なら削除）
+        Log::info('購入した商品データ:', ['items_count' => $purchasedItems->count(), 'items' => $purchasedItems]);
+
+        // tab を 'buy' に設定してビューへ渡す
+        return view('user.show', [
+            'items' => $purchasedItems,
+            'tab' => 'buy'
+        ]);
     }
 
     /**

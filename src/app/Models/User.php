@@ -53,7 +53,7 @@ class User extends Authenticatable
 
     public function purchases()
     {
-        return $this->hasMany(Purchase::class);
+        return $this->hasMany(Purchase::class, 'user_id', 'id');
     }
 
     public function likes()

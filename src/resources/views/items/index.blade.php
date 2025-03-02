@@ -18,6 +18,9 @@
         <a href="{{ route('items.show', $item->id) }}">
             <img src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : Storage::url($item->image) }}"
                 class="product-image">
+            @if ($item->sold)
+            <div class="sold-label">Sold</div> <!-- 追加 -->
+            @endif
             <div class="product-info">
                 <span class="product-name">{{ $item->name }}</span>
             </div>
