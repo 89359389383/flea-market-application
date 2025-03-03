@@ -25,10 +25,6 @@ class ItemController extends Controller
         // タブのパラメータを取得
         $tab = $request->query('tab', 'recommend');
 
-        if ($tab === 'mylist') {
-            return $this->mylist();
-        }
-
         // 現在のユーザーを取得
         $user = Auth::user();
 
@@ -41,7 +37,7 @@ class ItemController extends Controller
 
         $items = $query->get();
 
-        return view('items.index', ['items' => $items, 'tab' => $tab]);
+        return view('items.index', ['items' => $items, 'tab' => $tab]); // ここで $tab をビューに渡す
     }
 
     public function search(Request $request)
@@ -49,19 +45,19 @@ class ItemController extends Controller
         // ユーザーが入力した商品名を取得
         $name = $request->input('name');
 
-        // 商品データを扱うためのクエリを準備
-        $query = Item::with('user')->where('sold', false);
+        // タブのパラメータを取得（デフォルトは "recommend"）
+        $tab = $request->query('tab', 'recommend');
 
-        // 商品名が入力されている場合、名前で部分一致検索を追加
+        // 商品データを扱うためのクエリを準備
+        $query = Item::with('user');
+
         if (!empty($name)) {
             $query->where('name', 'like', "%$name%"); // 部分一致検索
         }
 
-        // クエリを実行して商品一覧を取得
         $items = $query->get();
 
-        // items/index.blade.php ビューに商品データを渡して表示します
-        return view('items.index', ['items' => $items, 'name' => $name]);
+        return view('items.index', ['items' => $items, 'name' => $name, 'tab' => $tab]);
     }
 
     /**
@@ -69,58 +65,34 @@ class ItemController extends Controller
      * URL: /?tab=mylist
      * メソッド: GET (認証必須)
      */
-    public function mylist()
+    public function mylist(Request $request)
     {
-        // ログインユーザーの取得
         $user = Auth::user();
 
         if (!$user) {
-            Log::warning('未ログインユーザーがマイリストを開こうとしました。', [
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->header('User-Agent')
-            ]);
             return redirect()->route('login')->with('error', 'マイリストを見るにはログインが必要です。');
         }
 
-        try {
-            // いいねした商品のIDリストを取得
-            $likedItemIds = $user->likes()->pluck('item_id');
+        // ⭐️【修正】検索キーワードを取得し、マイリストの検索に適用
+        $searchQuery = $request->query('name', '');
 
-            // いいねした商品のみ取得
-            $items = Item::whereIn('id', $likedItemIds)->with('user')->get();
+        // いいねした商品のみ取得
+        $likedItemIds = $user->likes()->pluck('item_id');
 
-            // 取得した商品の詳細を配列に整形
-            $itemsData = $items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'price' => $item->price,
-                    'sold' => $item->sold ? '売却済み' : '販売中',
-                    'created_at' => $item->created_at->toDateTimeString(),
-                ];
-            });
+        $query = Item::whereIn('id', $likedItemIds)->with('user');
 
-            // ログに詳細情報を記録
-            Log::info('マイリストの商品を取得しました。', [
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'request_ip' => request()->ip(),
-                'user_agent' => request()->header('User-Agent'),
-                'total_likes' => $items->count(),
-                'items' => $itemsData
-            ]);
-
-            return view('items.index', ['items' => $items, 'tab' => 'mylist']);
-        } catch (\Exception $e) {
-            Log::error('マイリストの取得中にエラーが発生しました。', [
-                'user_id' => $user->id,
-                'error_message' => $e->getMessage(),
-                'request_ip' => request()->ip(),
-                'user_agent' => request()->header('User-Agent')
-            ]);
-
-            return redirect()->back()->with('error', 'マイリストを取得できませんでした。');
+        // ⭐️【追加】検索キーワードがある場合に検索条件を適用
+        if (!empty($searchQuery)) {
+            $query->where('name', 'like', "%{$searchQuery}%");
         }
+
+        $items = $query->get();
+
+        return view('items.index', [
+            'items' => $items,
+            'tab' => 'mylist',
+            'searchQuery' => $searchQuery, // ⭐️【追加】検索ワードをビューに渡す
+        ]);
     }
 
     /**

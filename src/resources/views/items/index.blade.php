@@ -10,7 +10,8 @@
 
 <nav class="nav-tabs">
     <a href="{{ route('items.index') }}" class="nav-tab {{ $tab == 'recommend' ? 'active' : '' }}">おすすめ</a>
-    <a href="{{ route('items.mylist') }}" class="nav-tab {{ $tab == 'mylist' ? 'active' : '' }}">マイリスト</a>
+    <!-- ⭐️【修正】マイリストに遷移する際に検索ワードを維持 -->
+    <a href="{{ route('items.mylist', ['name' => request('name')]) }}" class="nav-tab {{ $tab == 'mylist' ? 'active' : '' }}">マイリスト</a>
 </nav>
 
 <div class="product-grid">

@@ -21,7 +21,8 @@
         <!-- ログイン・会員登録ページでは非表示 -->
         @if (!Request::is('login') && !Request::is('register'))
         <div class="header-center">
-            <form method="GET" action="{{ route('items.search') }}">
+            <!-- ⭐️【修正】現在のタブに応じて検索フォームの遷移先を変更 -->
+            <form method="GET" action="{{ $tab == 'mylist' ? route('items.mylist') : route('items.search') }}">
                 <input type="text" name="name" value="{{ request('name') }}" placeholder="なにをお探しですか？" class="search-input">
                 <button type="submit" class="search-button">検索</button>
             </form>
