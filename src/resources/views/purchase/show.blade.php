@@ -35,11 +35,16 @@
             @csrf
             <div class="section">
                 <h2 class="section-title">支払い方法</h2>
-                <select name="payment_method" id="payment-method" required>
+                <select name="payment_method" id="payment-method">
                     <option value="">選択してください</option>
                     <option value="コンビニ払い">コンビニ払い</option>
                     <option value="カード払い">カード払い</option>
                 </select>
+                @error('payment_method')
+                <p class="error-message" style="color: red;">
+                    {{ $message }}
+                </p>
+                @enderror
             </div>
 
             <div class="section">

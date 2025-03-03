@@ -61,7 +61,7 @@
                     @endforeach
                 </div>
                 <!-- 選択されたカテゴリーを送信 -->
-                <input type="hidden" name="categories[]" multiple
+                <input type="hidden" name="categories" multiple
                     id="selected-categories">
                 @error('categories')
                 <p class="error-message" style="color: red;">{{ $message }}</p>
