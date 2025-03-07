@@ -19,7 +19,7 @@ class MyListTest extends TestCase
     public function test_only_liked_items_are_displayed()
     {
         // テスト用ユーザーを作成
-        $user = User::factory()->create();
+        $user = User::factory()->create()->first();
 
         // いいねされた商品を2つ作成
         $likedItems = Item::factory()->count(2)->create();
