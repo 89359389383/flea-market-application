@@ -17,12 +17,7 @@ class ProfileUpdateTest extends TestCase
     {
         // 1. テスト用のユーザーを作成する
         //    -> factoryを使って仮のユーザーをデータベースに保存する
-        $user = User::factory()->create([
-            'profile_image' => 'images/sample.jpg', // 仮のプロフィール画像
-            'name' => 'テストユーザー', // ユーザー名
-            'postal_code' => '123-4567', // 郵便番号
-            'address' => '東京都渋谷区1-1-1' // 住所
-        ]);
+        $user = User::factory()->create()->first(); // first()メソッドを使用して単一のユーザーを取得
 
         // 2. ユーザーとしてログインする
         //    -> actingAs() を使って認証済みの状態を作成

@@ -19,7 +19,8 @@ class AddressTest extends TestCase
         Log::info('テスト開始: 登録した住所が商品購入画面に正しく反映されるか');
 
         // 1. ユーザーを作成（データベースに仮のユーザー情報を登録）
-        $user = User::factory()->create([
+        $user = User::factory()->create()->first(); // ユーザーの作成後、最初のインスタンスを取得
+        $user->update([
             'postal_code' => '123-4567',
             'address' => '東京都新宿区テスト町1-2-3',
             'building' => 'テストビル101',
@@ -54,7 +55,8 @@ class AddressTest extends TestCase
         Log::info('テスト開始: 購入した商品に送付先住所が正しく紐づいて登録されるか');
 
         // 1. ユーザーを作成
-        $user = User::factory()->create([
+        $user = User::factory()->create()->first(); // ユーザーの作成後、最初のインスタンスを取得
+        $user->update([
             'postal_code' => '987-6543',
             'address' => '大阪府大阪市テスト区4-5-6',
             'building' => 'テストマンション202',
