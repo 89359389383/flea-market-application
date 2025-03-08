@@ -17,7 +17,7 @@
         <p class="price">¥{{ number_format($item->price) }} (税込)</p>
 
         <div class="rating-section">
-            <div>
+            <div class="like">
                 <!-- いいねボタン -->
                 <form action="{{ route('items.toggleLike', $item->id) }}" method="POST">
                     @csrf
@@ -25,10 +25,10 @@
                         ☆
                     </button>
                 </form>
-                <span class="like-count">{{ $item->likes->count() }}</span>
+                <div class="like-count">{{ $item->likes->count() }}</div>
             </div>
             <div>
-                <div class="comment-icon">◎</div>
+                <div class="comment-icon">💬</div>
                 <div class="comment-count">{{ $item->comments_count }}</div>
             </div>
         </div>
@@ -59,19 +59,18 @@
             </div>
         </div>
 
-        <h2 class="section-title">コメント</h2>
         <div class="comment-section">
-            <h3 class="comment-header">コメント ({{ $item->comments->count() }})</h3>
+            <div class="comment-header">コメント ({{ $item->comments->count() }})</div>
             <div class="comment-list">
                 @foreach ($item->comments as $comment)
                 <div class="comment">
-                    <div class="comment-avatar">
-                        <img src="{{ asset('storage/' . $comment->user->profile_image) }}" alt="{{ $comment->user->name }}">
-                    </div>
-                    <div class="comment-content">
+                    <div class="comment-content" style="display: flex; align-items: center;">
+                        <div class="comment-avatar">
+                            <img src="{{ asset('storage/' . $comment->user->profile_image) }}">
+                        </div>
                         <div class="comment-username">{{ $comment->user->name }}</div>
-                        <div class="comment-text">{{ $comment->comment }}</div>
                     </div>
+                    <div class="comment-text">{{ $comment->comment }}</div>
                 </div>
                 @endforeach
             </div>
