@@ -7,33 +7,23 @@
 @endsection
 
 @section('content')
-<div class="container">
-    <div class="main-content">
-        <div class="product-header">
-            <div class="product-image">
-                <img src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : Storage::url($item->image) }}" class="product-image">
+<form action="{{ route('purchase.store', ['item_id' => $item->id]) }}" method="POST">
+    @csrf
+    <div class="container">
+        <!-- メインコンテンツ（左側） -->
+        <div class="main-content">
+            <div class="product-header">
+                <div class="product-image">
+                    <img src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : Storage::url($item->image) }}" class="product-image">
+                </div>
+                <div class="product-info">
+                    <h1 class="product-title">{{ $item->name }}</h1>
+                    <h1 class="product-price">¥{{ number_format($item->price) }}</h1>
+                </div>
             </div>
-            <div class="product-info">
-                <h1 class="product-title">{{ $item->name }}</h1>
-                <h1 class="product-price">¥{{ number_format($item->price) }}</h1>
-            </div>
-        </div>
 
-        <div class="section">
-            <h2 class="section-title">配送先</h2>
-            <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">変更する</a>
-            <div class="address">
-                〒 {{ $user->postal_code }}<br>
-                {{ $user->address }}<br>
-                {{ $user->building }}
-            </div>
-        </div>
-    </div>
-
-    <div class="sidebar">
-        <form action="{{ route('purchase.store', ['item_id' => $item->id]) }}" method="POST">
-            @csrf
-            <div class="section">
+            <!-- 支払い方法 -->
+            <div class="section-payment">
                 <h2 class="section-title">支払い方法</h2>
                 <select name="payment_method" id="payment-method">
                     <option value="">選択してください</option>
@@ -41,15 +31,16 @@
                     <option value="カード払い">カード払い</option>
                 </select>
                 @error('payment_method')
-                <p class="error-message" style="color: red;">
-                    {{ $message }}
-                </p>
+                <p class="error-message" style="color: red;">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="section">
-                <h2 class="section-title">配送先</h2>
-                <a href="{{ route('address.edit', ['item_id' => $item->id]) }}">変更する</a>
+            <!-- 配送先 -->
+            <div class="section-address">
+                <div class="section-header">
+                    <h2 class="section-title">配送先</h2>
+                    <a href="{{ route('address.edit', ['item_id' => $item->id]) }}" class="change-address-link">変更する</a>
+                </div>
                 <div class="address">
                     <input type="hidden" name="postal_code" value="{{ $user->postal_code }}">
                     <input type="hidden" name="address" value="{{ $user->address }}">
@@ -59,7 +50,10 @@
                     {{ $user->building }}
                 </div>
             </div>
+        </div>
 
+        <!-- サイドバー（右側） -->
+        <div class="sidebar">
             <div class="summary-box">
                 <div class="summary-row">
                     <div class="summary-label">商品代金</div>
@@ -71,10 +65,10 @@
                 </div>
             </div>
 
-            <button class="purchase-button">購入する</button>
-        </form>
+            <button type="submit" class="purchase-button">購入する</button>
+        </div>
     </div>
-</div>
+</form>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
