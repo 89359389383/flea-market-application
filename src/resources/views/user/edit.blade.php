@@ -15,12 +15,15 @@
         <div class="profile-image-container">
             <div class="profile-image">
                 @if ($user->profile_image)
-                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" class="profile-preview">
+                <img id="image-preview" src="{{ asset('storage/' . $user->profile_image) }}" alt="プロフィール画像" class="profile-preview">
                 @else
-                <p>" "</p>
+                <img id="image-preview" src="" alt="プロフィール画像" class="profile-preview" style="display: none;">
                 @endif
             </div>
-            <input type="file" name="profile_image" class="image-select-button">
+            <div class="custom-file-container">
+                <label for="profile-image-input" class="custom-file-label">画像を選択する</label>
+                <input type="file" id="profile-image-input" name="profile_image" class="image-select-button">
+            </div>
             @error('profile_image')
             <p class="error-message" style="color: red;">
                 {{ $message }}
@@ -75,4 +78,22 @@
         <button type="submit" class="submit-button">更新する</button>
     </form>
 </div>
+
+<script>
+    document.getElementById('profile-image-input').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('image-preview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block'; // 画像が選択されたら表示
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none'; // ファイルが選択されていない場合は非表示
+        }
+    });
+</script>
 @endsection
