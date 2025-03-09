@@ -4,37 +4,18 @@
 
 @section('css')
 <link rel="stylesheet" href="{{ asset('css/item/create.css') }}">
-<style>
-    .category-tag {
-        display: inline-block;
-        padding: 8px 12px;
-        margin: 4px;
-        background-color: #f0f0f0;
-        color: #333;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s, color 0.3s;
-    }
-
-    .category-tag.selected {
-        background-color: red;
-        color: white;
-    }
-</style>
 @endsection
 
 @section('content')
 <main class="main-content">
     <h1 class="page-title">商品の出品</h1>
-
     <!-- 出品フォーム -->
     <form class="product-form" action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- 商品画像アップロードセクション -->
+        <h2 class="product-photo">商品画像</h2>
         <div class="product-image-section">
-            <div class="product-image-label">商品画像</div>
-
             <!-- プレビュー表示エリア -->
             <div class="image-preview">
                 <img id="image-preview" style="display: none;" alt="商品画像プレビュー">
@@ -84,9 +65,9 @@
             </div>
 
             <div class="product-form-section">
-                <h2>商品名と説明</h2>
+                <h2 class="description-title">商品名と説明</h2>
                 <div class="product-form-group">
-                    <label>商品名</label>
+                    <div class="label">商品名</div>
                     <input type="text" name="name" class="product-form-input" placeholder="商品名を入力してください" value="{{ old('name') }}">
                     @error('name')
                     <p class="error-message" style="color: red;">{{ $message }}</p>
@@ -94,7 +75,7 @@
                 </div>
 
                 <div class="product-form-group">
-                    <label>ブランド名</label>
+                    <div class="label">ブランド名</div>
                     <input type="text" name="brand_name" class="product-form-input" placeholder="ブランド名を入力してください">
                     @error('brand_name')
                     <p class="error-message" style="color: red;">{{ $message }}</p>
@@ -102,7 +83,7 @@
                 </div>
 
                 <div class="product-form-group">
-                    <label>商品の説明</label>
+                    <div class="label">商品の説明</div>
                     <textarea name="description" class="product-form-input" placeholder="商品の説明を入力してください">{{ old('description') }}</textarea>
                     @error('description')
                     <p class="error-message" style="color: red;">{{ $message }}</p>
@@ -110,10 +91,9 @@
                 </div>
 
                 <div class="product-form-group">
-                    <label>販売価格</label>
+                    <div class="label">販売価格</div>
                     <div class="price-input">
-                        <span>¥</span>
-                        <input type="number" name="price" class="product-form-input" placeholder="0" value="{{ old('price') }}">
+                        <input type="text" name="price" class="product-form-input" placeholder="¥0" value="¥{{ old('price', 0) }}">
                         @error('price')
                         <p class="error-message" style="color: red;">{!! nl2br(e($message)) !!}</p>
                         @enderror
