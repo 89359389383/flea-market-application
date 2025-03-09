@@ -11,7 +11,7 @@
     <div class="profile-info">
         <!-- プロフィール画像の表示 -->
         <div class="avatar">
-            <img src="{{ Auth::user()->profile_image ? Storage::url(Auth::user()->profile_image) : '' }}" alt="プロフィール画像">
+            <img src="{{ Auth::user()->profile_image ? Storage::url(Auth::user()->profile_image) : '' }}" alt="プロフィール画像" class="avatar-img">
         </div>
         <!-- ユーザー名の表示 -->
         <h1 class="username">{{ Auth::user()->name }}</h1>

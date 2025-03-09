@@ -27,6 +27,17 @@ body {
     height: 125px;
     border-radius: 50%;
     background-color: #ddd;
+    overflow: hidden; /* はみ出しを防ぐ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 画像を枠にフィットさせる */
+    border-radius: 50%; /* 画像も丸くする */
 }
 
 .username {
