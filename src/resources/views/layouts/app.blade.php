@@ -13,8 +13,8 @@
     <!-- ヘッダー -->
     <header class="header">
         <div class="header-left">
-            <div class="logo">
-                <span>COACHTECH</span>
+            <div class="logo-image">
+                <img src="{{ Storage::url('public/profiles/6rd4Hg4jJQHeEIFqKB7a1cJnsgyf0Jwy8HCkvFzr.svg') }}" alt="COACHTECH Logo">
             </div>
         </div>
 

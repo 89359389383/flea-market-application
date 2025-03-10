@@ -66,7 +66,7 @@
                 <div class="comment">
                     <div class="comment-content" style="display: flex; align-items: center;">
                         <div class="comment-avatar">
-                            <img src="{{ asset('storage/' . $comment->user->profile_image) }}">
+                            <img src="{{ asset('storage/' . $comment->user->profile_image) }}" class="comment-avatar-img">
                         </div>
                         <div class="comment-username">{{ $comment->user->name }}</div>
                     </div>
