@@ -13,35 +13,68 @@ body {
 
 /* ヘッダー */
 .header {
+    height: 60px;
     display: flex;
     align-items: center;
+    position: relative; /* 相対配置 */
     justify-content: space-between;
     background-color: #000;
     /* 黒背景 */
 }
 
-/* 左側ロゴ部分 */
-.header-left .logo span {
-    color: #fff;
-    font-weight: bold;
-    font-size: 1.8rem;
+/* ロゴ全体 */
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 40px;
+}
+
+/* ロゴの画像 */
+.logo-image {
+    margin-left: 30px;
+    display: flex;
+    /* 追加: ロゴ画像をフレックスで縦横中央に配置 */
+    align-items: center;
+    /* 縦方向の中央 */
+    justify-content: center;
+    /* 横方向の中央 */
 }
 
 /* 中央検索バー */
 .header-center {
-    flex: 1;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
 }
 
 .search-input {
-    width: 60%;
-    max-width: 400px;
+    min-width: 430px;
+    min-height: 40px;
     padding: 0.4rem 0.6rem;
     border-radius: 4px;
     border: none;
     font-size: 1rem;
     outline: none;
+}
+
+/* プレースホルダーテキストのスタイル */
+.search-input::placeholder {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    vertical-align: middle;
+    /* 縦方向に中央寄せ */
+    padding-left: 30px;
+    /* 入力欄左側の余白を調整 */
+}
+
+.search-button {
+    min-width: 60px;
+    min-height: 40px;
+    font-size: 18px;
 }
 
 /* 右側リンク・ボタン */
@@ -54,7 +87,9 @@ body {
     color: #fff;
     text-decoration: none;
     margin-left: 1rem;
-    font-size: 0.9rem;
+    font-size: 20px;
+    background-color: #000;
+    border: none;
 }
 
 .header-link:hover {
@@ -62,15 +97,14 @@ body {
 }
 
 .header-button {
-    margin-left: 1rem;
+    margin-left: 30px;
+    margin-right: 40px;
     color: #000;
-    padding: 0.4rem 0.8rem;
-    border: 1px solid #000;
+    padding: 0.4rem 20px;
+    background-color: #fff;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
-}
-
-.header-button:hover {
-    background-color: #f2f2f2;
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
 }
