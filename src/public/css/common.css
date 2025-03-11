@@ -16,7 +16,8 @@ body {
     height: 60px;
     display: flex;
     align-items: center;
-    position: relative; /* 相対配置 */
+    position: relative;
+    /* 相対配置 */
     justify-content: space-between;
     background-color: #000;
     /* 黒背景 */
@@ -107,4 +108,131 @@ body {
     font-size: 20px;
     font-weight: bold;
     text-decoration: none;
+}
+
+/* 850px 以上 1300px 以下のレスポンシブ対応 */
+@media (max-width: 1300px) and (min-width: 768px) {
+.header {
+    height: auto;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.header-left {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.logo-image {
+    margin-left: 0;
+}
+
+.header-center {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 10px 0;
+}
+
+.search-input {
+    min-width: auto;
+    width: 60%;
+    margin-left: 50px;
+}
+
+.search-input::placeholder {
+    font-size: 14px;
+    padding-left: 5px;
+}
+
+.search-button {
+    min-width: 45px;
+    font-size: 14px;
+}
+
+.header-right {
+    width: 100%;
+    justify-content: space-around;
+}
+
+.header-link {
+    font-size: 20px;
+    margin-left: 28px;
+}
+
+.header-button {
+    margin-right: 60px;
+    padding: 0.3rem 10px;
+    font-size: 20px;
+}
+}
+
+/* スマートフォン対応 (375px-767px) */
+@media screen and (max-width: 767px) and (min-width: 375px) {
+    .header {
+        height: auto;
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .header-left {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .logo-image {
+        margin-left: 0;
+    }
+
+    .header-center {
+        position: static;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        margin: 10px 0;
+    }
+
+    .search-input {
+        min-width: auto;
+        width: 60%;
+        margin-left: 50px;
+    }
+
+    .search-input::placeholder {
+        font-size: 14px;
+        padding-left: 5px;
+    }
+
+    .search-button {
+        min-width: 45px;
+        font-size: 14px;
+    }
+
+    .header-right {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        /* 中央寄せ */
+        align-items: center;
+        gap: 15px;
+        /* 要素間のスペース */
+    }
+
+    .header-link {
+        font-size: 18px;
+        text-align: center;
+        width: auto;
+        /* 不要な余白を防ぐ */
+    }
+
+    .header-button {
+        margin: 0;
+        padding: 0.3rem 10px;
+        font-size: 18px;
+    }
 }

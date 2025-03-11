@@ -209,3 +209,10 @@ body {
     font-size: 18px;
     font-weight: bold;
 }
+
+/*767px以下*/
+@media screen and (max-width: 767px) {
+    .main-content {
+        max-width: 75%;
+    }
+}

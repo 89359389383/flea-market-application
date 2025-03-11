@@ -89,3 +89,10 @@ h1 {
     cursor: pointer;
     font-weight: bold;
 }
+
+/*767px以下*/
+@media screen and (max-width: 767px) {
+    .container {
+            max-width: 75%;
+    }
+}

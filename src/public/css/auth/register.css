@@ -86,3 +86,74 @@ input[type="password"] {
     justify-content: center;
     align-items: center;
 }
+
+/* 1400px以上 */
+@media screen and (min-width: 1400px) {
+    .container {
+        max-width: 600px;
+    }
+}
+
+/* タブレット対応（768px 以上 850px 以下） */
+@media screen and (max-width: 850px) {
+    .container {
+        max-width: 75%;
+        padding: 16px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    label {
+        font-size: 16px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        font-size: 14px;
+    }
+
+    .submit-button {
+        font-size: 18px;
+        padding: 10px;
+    }
+
+    .login-link {
+        font-size: 16px;
+    }
+}
+
+/* スマートフォン対応（375px 以上 767px 以下） */
+@media screen and (max-width: 767px) {
+    .container {
+        max-width: 80%;
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 20px;
+        margin-bottom: 24px;
+    }
+
+    label {
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        font-size: 14px;
+        padding: 6px;
+    }
+
+    .submit-button {
+        font-size: 16px;
+        padding: 8px;
+    }
+
+    .login-link {
+        font-size: 14px;
+    }
+}

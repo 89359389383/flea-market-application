@@ -27,7 +27,7 @@ class ExhibitionRequest extends FormRequest
             'name' => 'required|string|max:255',
             'brand_name' => 'nullable|string|max:255',
             'description' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,jpg,png|max:2048', // 画像ファイル制限: JPEGまたはPNG
+            'image' => 'required|image|mimes:jpeg,png|max:2048', // 画像ファイル制限: JPEGまたはPNG
             'categories' => 'required|array',
             'categories.*' => 'exists:categories,id', // 各カテゴリーが `categories` テーブルに存在するかチェック
             'condition' => 'required',
