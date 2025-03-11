@@ -38,7 +38,7 @@ class ProfileTest extends TestCase
 
         // 5. プロフィールページを開く（最初は購入した商品は非表示）
         $response = $this->get(route('user.show'));
-        
+
         // プロフィール画像のパスをログに記録
         Log::info('プロフィール画像のパス:', ['profile_image' => $user->profile_image]);
 
