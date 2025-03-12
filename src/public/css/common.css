@@ -170,8 +170,8 @@ body {
 }
 }
 
-/* スマートフォン対応 (375px-767px) */
-@media screen and (max-width: 767px) and (min-width: 375px) {
+/* スマートフォン対応 (767px以下) */
+@media screen and (max-width: 767px) {
     .header {
         height: auto;
         flex-direction: column;
@@ -216,10 +216,9 @@ body {
     .header-right {
         width: 100%;
         display: flex;
-        justify-content: center;
-        /* 中央寄せ */
         align-items: center;
-        gap: 15px;
+        justify-content: center;
+        gap: 20px;
         /* 要素間のスペース */
     }
 
@@ -228,6 +227,7 @@ body {
         text-align: center;
         width: auto;
         /* 不要な余白を防ぐ */
+        margin: 0px;
     }
 
     .header-button {
