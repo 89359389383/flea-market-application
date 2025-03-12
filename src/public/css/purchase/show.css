@@ -176,3 +176,46 @@ select {
 .purchase-button:hover {
     background-color: #ff2222;
 }
+
+@media screen and (max-width: 850px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .sidebar {
+        width: 100%;
+        margin: 0px 20px;
+        padding: 0px;
+    }
+
+    .main-content {
+        width: 100%;
+        margin: 0px 20px;
+        padding: 0px;
+    }
+
+    .product-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .product-info {
+        text-align: center;
+        margin-left: 0;
+    }
+
+    .sidebar {
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .summary-box {
+        padding: 15px;
+    }
+
+    select {
+        max-width: 100%;
+    }
+}

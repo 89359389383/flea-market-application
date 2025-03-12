@@ -62,8 +62,59 @@ body {
     text-decoration: none;
 }
 
+/* タブレット対応 (768px〜850px) */
+@media (max-width: 850px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .nav-tabs {
+        justify-content: center;
+    }
+
+    .nav-tab {
+        padding: 15px 15px 5px;
+        font-size: 16px;
+    }
+
+    .nav-tabs .move-right {
+        margin-left: 0px;
+    }
+}
+
+/* スマホ対応 (〜768px) */
 @media (max-width: 768px) {
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .nav-tabs {
+        justify-content: center;
+    }
+
+    .nav-tab {
+        padding: 15px 15px 5px;
+        font-size: 16px;
+    }
+
+    .nav-tabs .move-right {
+        margin-left: 0px;
+    }
+}
+
+/* スマホ小型デバイス対応 (〜480px) */
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .product-name {
+        font-size: 16px;
+    }
+
+    .nav-tabs {
+        justify-content: center;
     }
 }
