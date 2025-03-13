@@ -27,7 +27,7 @@ class PurchaseRequest extends FormRequest
             'payment_method' => 'required|string|in:コンビニ払い,カード払い',
             'postal_code' => 'required|string|regex:/^\d{3}-\d{4}$/', // ハイフンあり8文字
             'address' => 'required|string|max:255',
-            'building' => 'nullable|string|max:255',
+            'building' => 'required|string|max:255',
         ];
     }
 
@@ -42,6 +42,7 @@ class PurchaseRequest extends FormRequest
             'postal_code.required' => '郵便番号を入力してください',
             'postal_code.regex' => '郵便番号は「XXX-XXXX」の形式で入力してください',
             'address.required' => '住所を入力してください',
+            'building.required' => '建物名を入力してください',
             'building.string' => '建物名は文字列である必要があります',
         ];
     }
