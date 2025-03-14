@@ -76,7 +76,6 @@
             </div>
         </div>
 
-        @auth
         <h3 class="section-title">商品へのコメント</h3>
         <form action="{{ route('items.comment.store', $item->id) }}" method="POST">
             @csrf
@@ -88,9 +87,6 @@
             @enderror
             <button type="submit" class="comment-submit-button">コメントを送信する</button>
         </form>
-        @else
-        <p>コメントを投稿するには <a href="{{ route('login') }}">ログイン</a> してください。</p>
-        @endauth
     </div>
 </div>
 @endsection
