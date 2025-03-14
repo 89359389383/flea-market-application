@@ -10,6 +10,9 @@
 <div class="container">
     <div class="product-image">
         <img src="{{ filter_var($item->image, FILTER_VALIDATE_URL) ? $item->image : Storage::url($item->image) }}">
+        @if ($item->sold)
+        <div class="sold-label">Sold</div>
+        @endif
     </div>
     <div class="product-details">
         <h1 class="product-title">{{ $item->name }}</h1>
@@ -34,7 +37,13 @@
         </div>
         　　　　
         <form action="{{ route('purchase.show', ['item_id' => $item->id]) }}" method="GET">
+            @if ($item->sold)
+            <!-- 売り切れの場合 -->
+            <button type="button" class="sold-out-button" disabled>売り切れました</button>
+            @else
+            <!-- 売り切れていない場合 -->
             <button type="submit" class="purchase-button">購入手続きへ</button>
+            @endif
         </form>
 
         <h2 class="section-title">商品説明</h2>
@@ -65,28 +74,28 @@
                 @foreach ($item->comments as $comment)
                 <div class="comment">
                     <div class="comment-content" style="display: flex; align-items: center;">
-                        <div class="comment-avatar">
+                        < <div class="comment-avatar">
                             <img src="{{ asset('storage/' . $comment->user->profile_image) }}" class="comment-avatar-img">
-                        </div>
-                        <div class="comment-username">{{ $comment->user->name }}</div>
                     </div>
-                    <div class="comment-text">{{ $comment->comment }}</div>
+                    <div class="comment-username">{{ $comment->user->name }}</div>
                 </div>
-                @endforeach
+                <div class="comment-text">{{ $comment->comment }}</div>
             </div>
+            @endforeach
         </div>
-
-        <h3 class="section-title">商品へのコメント</h3>
-        <form action="{{ route('items.comment.store', $item->id) }}" method="POST">
-            @csrf
-            <textarea class="comment-input" name="comment" placeholder="コメントを入力してください"></textarea>
-            @error('comment')
-            <p class="error-message" style="color: red;">
-                {{ $message }}
-            </p>
-            @enderror
-            <button type="submit" class="comment-submit-button">コメントを送信する</button>
-        </form>
     </div>
+
+    <h3 class="section-title">商品へのコメント</h3>
+    <form action="{{ route('items.comment.store', $item->id) }}" method="POST">
+        @csrf
+        <textarea class="comment-input" name="comment" placeholder="コメントを入力してください"></textarea>
+        @error('comment')
+        <p class="error-message" style="color: red;">
+            {{ $message }}
+        </p>
+        @enderror
+        <button type="submit" class="comment-submit-button">コメントを送信する</button>
+    </form>
+</div>
 </div>
 @endsection

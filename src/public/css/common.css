@@ -110,7 +110,7 @@ body {
     text-decoration: none;
 }
 
-/* 850px 以上 1300px 以下のレスポンシブ対応 */
+/* 768px 以上 1300px 以下のレスポンシブ対応 */
 @media (max-width: 1300px) and (min-width: 768px) {
 .header {
     height: auto;
@@ -153,14 +153,14 @@ body {
     font-size: 14px;
 }
 
-.header-right {
+header-right {
     width: 100%;
     justify-content: space-around;
 }
 
 .header-link {
     font-size: 20px;
-    margin-left: 28px;
+    margin-left: 22px;
 }
 
 .header-button {
@@ -215,24 +215,17 @@ body {
 
     .header-right {
         width: 100%;
-        display: flex;
-        align-items: center;
         justify-content: center;
-        gap: 20px;
-        /* 要素間のスペース */
     }
 
     .header-link {
-        font-size: 18px;
-        text-align: center;
-        width: auto;
-        /* 不要な余白を防ぐ */
-        margin: 0px;
+        font-size: 20px;
+        margin-left: 22px;
     }
 
     .header-button {
-        margin: 0;
+        margin-right: 60px;
         padding: 0.3rem 10px;
-        font-size: 18px;
+        font-size: 20px;
     }
 }
