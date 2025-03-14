@@ -18,7 +18,7 @@
                 </div>
                 <div class="product-info">
                     <h1 class="product-title">{{ $item->name }}</h1>
-                    <h1 class="product-price">¥{{ number_format($item->price) }}</h1>
+                    <h2 class="product-price">¥{{ number_format($item->price) }}</h2>
                 </div>
             </div>
 

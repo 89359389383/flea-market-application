@@ -96,4 +96,27 @@ class CommentTest extends TestCase
         // エラーメッセージが表示されることを確認
         $response->assertSessionHasErrors(['comment' => 'コメントは255文字以内で入力してください']);
     }
+
+    /**
+     * ログインしていないユーザーはコメントを投稿できないかテストする
+     */
+    public function test_guest_cannot_post_comment()
+    {
+        // 商品を作成する（コメント対象）
+        $item = Item::factory()->create();
+
+        // コメントのデータを作成（フォームから送信される想定）
+        $commentData = [
+            'comment' => 'これはゲストユーザーのテストコメントです！',
+        ];
+
+        // ゲストユーザーとしてコメントを送信（POSTリクエスト）
+        $response = $this->post(route('items.comment.store', ['item_id' => $item->id]), $commentData);
+
+        // コメントがデータベースに保存されていないことを確認
+        $this->assertEquals(0, Comment::count());
+
+        // ログインページへリダイレクトされることを確認
+        $response->assertRedirect(route('login'));
+    }
 }
