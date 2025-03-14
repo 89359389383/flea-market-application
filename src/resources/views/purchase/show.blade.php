@@ -25,7 +25,7 @@
             <!-- 支払い方法 -->
             <div class="section-payment">
                 <h2 class="section-title">支払い方法</h2>
-                <select name="payment_method" id="payment-method">
+                <select name="payment_method" id="payment-method" class="payment-options">
                     <option value="">選択してください</option>
                     <option value="コンビニ払い">コンビニ払い</option>
                     <option value="カード払い">カード払い</option>
