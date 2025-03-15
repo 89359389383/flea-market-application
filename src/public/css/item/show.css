@@ -143,10 +143,13 @@
 }
 
 .tag {
+    display: inline-block;
     background-color: #e0e0e0;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 14px;
+    margin-right: 12px;
+    padding: 4px 20px;
+    border-radius: 20px;
+    font-size: 20px;
+    flex-wrap: wrap;
 }
 
 .comment-icon {
@@ -166,9 +169,18 @@
 .info-label {
     font-size: 20px;
     font-weight: bold;
+    white-space: nowrap;
+        /* テキストを改行させない */
+    display: block;
+            /* ブロック要素として表示 */
 }
 
-.info-value {
+.info-category-value {
+    font-size: 20px;
+    margin-left: 80px;
+}
+
+.info-condition-value {
     font-size: 20px;
     margin-left: 100px;
 }
@@ -225,6 +237,8 @@
 .comment-content {
     flex-grow: 1;
     margin-bottom: 20px;
+    align-items: flex-start;
+        /* 左寄せ */
 }
 
 .comment-text {
@@ -236,6 +250,8 @@
 
 .comment-form {
     margin-top: 40px;
+    font-size: 20px;
+    width: 50%;
 }
 
 .comment-form h3 {
@@ -322,6 +338,16 @@ textarea {
         font-size: 28px;
     }
 
+    .tag {
+        display: inline-block;
+        flex-wrap: wrap;
+    }
+
+    .product-description{
+        width: 60%;
+        margin: 0 auto;
+    }
+
     .brand-name {
         font-size: 18px;
     }
@@ -333,8 +359,13 @@ textarea {
     .info-row {
         display: flex;
         align-items: center;
+        justify-content: center;
         margin-bottom: 16px;
-        margin-left: 320px;
+    }
+
+    .info-category-value {
+        font-size: 20px;
+        margin-left: 80px;
     }
 
     .rating-section {
@@ -356,7 +387,26 @@ textarea {
         height: 50px;
     }
 
+    .comment-content {
+        justify-content: center;
+    }
+
     .comment-text {
-        width: 100%;
+        justify-content: center;
+        width: 50%;
+        font-size: 18px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .textarea {
+        width: 70%;
+        min-height: 220px;
+        font-size: 18px;
+        padding: 12px;
+        border: 1px solid #000;
+        border-radius: 4px;
+        margin-bottom: 30px;
+        resize: vertical;
     }
 }
