@@ -177,6 +177,16 @@ select {
     background-color: #ff2222;
 }
 
+.default-option {
+    color: #000000;
+    background-color: white;
+}
+
+.payment-option {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.63);
+}
+
 @media screen and (max-width: 850px) {
     .container {
         display: flex;
