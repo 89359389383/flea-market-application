@@ -25,10 +25,10 @@
             <!-- 支払い方法 -->
             <div class="section-payment">
                 <h2 class="section-title">支払い方法</h2>
-                <select name="payment_method" id="payment-method" class="payment-options">
-                    <option value="">選択してください</option>
-                    <option value="コンビニ払い">コンビニ払い</option>
-                    <option value="カード払い">カード払い</option>
+                <select name="payment_method" id="payment-method">
+                    <option value="" selected class="default-option">選択してください</option>
+                    <option value="コンビニ払い" class="payment-option">コンビニ払い</option>
+                    <option value="カード払い" class="payment-option">カード払い</option>
                 </select>
                 @error('payment_method')
                 <p class="error-message" style="color: red;">{{ $message }}</p>
@@ -73,10 +73,25 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const paymentSelect = document.getElementById("payment-method");
-        const paymentDisplay = document.getElementById("selected-payment-method");
+        const defaultOption = paymentSelect.querySelector("option[value='']");
+
+        paymentSelect.addEventListener("focus", function() {
+            // 「選択してください」を削除
+            if (defaultOption) {
+                defaultOption.remove();
+            }
+        });
 
         paymentSelect.addEventListener("change", function() {
-            paymentDisplay.textContent = paymentSelect.value ? paymentSelect.value : "選択してください";
+            // 選択した値を反映
+            document.getElementById("selected-payment-method").textContent = paymentSelect.value;
+        });
+
+        paymentSelect.addEventListener("blur", function() {
+            // 何も選択せずに閉じた場合は「選択してください」を戻す
+            if (!paymentSelect.value) {
+                paymentSelect.insertAdjacentHTML("afterbegin", '<option value="" selected>選択してください</option>');
+            }
         });
     });
 </script>
