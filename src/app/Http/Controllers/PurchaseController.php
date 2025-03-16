@@ -113,4 +113,27 @@ class PurchaseController extends Controller
             return redirect()->back()->with('error', '購入処理に失敗しました。');
         }
     }
+
+    public function checkout($item_id)
+    {
+        try {
+            $item = Item::findOrFail($item_id);
+            $stripePublicKey = env('STRIPE_PUBLIC'); // .env から公開キーを取得
+
+            // Stripe の決済ページ URL（仮）
+            $stripeCheckoutUrl = "https://checkout.stripe.com/pay/test_checkout_session";
+
+            Log::info("Stripe決済ページに遷移", [
+                'user_id' => auth()->id(),
+                'item_id' => $item_id,
+                'url' => $stripeCheckoutUrl
+            ]);
+
+            return redirect()->away($stripeCheckoutUrl);
+        } catch (\Exception $e) {
+            Log::error("Stripe決済ページのリダイレクトに失敗", ['error' => $e->getMessage()]);
+            return redirect()->route('purchase.show', ['item_id' => $item_id])
+                ->with('error', '決済画面への遷移に失敗しました。');
+        }
+    }
 }
