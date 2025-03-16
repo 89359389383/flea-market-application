@@ -32,7 +32,7 @@ class PurchaseTest extends TestCase
                 'postal_code' => '123-4567',  // 郵便番号
                 'address' => '東京都渋谷区',    // 住所
                 'building' => '渋谷タワー',    // 建物名
-                'payment_method' => 'カード払い', // 支払い方法
+                'payment_method' => 'コンビニ払い', // 支払い方法
             ]);
 
         // 購入後、アイテム一覧ページにリダイレクトされることを確認
@@ -59,7 +59,7 @@ class PurchaseTest extends TestCase
                 'postal_code' => '123-4567',  // 郵便番号
                 'address' => '東京都渋谷区',    // 住所
                 'building' => '渋谷タワー',    // 建物名
-                'payment_method' => 'カード払い', // 支払い方法
+                'payment_method' => 'コンビニ払い', // 支払い方法
             ]);
 
         // アイテム一覧ページを取得し、「Sold」と表示されていることを確認
@@ -82,7 +82,7 @@ class PurchaseTest extends TestCase
                 'postal_code' => '123-4567',  // 郵便番号
                 'address' => '東京都渋谷区',    // 住所
                 'building' => '渋谷タワー',    // 建物名
-                'payment_method' => 'カード払い', // 支払い方法
+                'payment_method' => 'コンビニ払い', // 支払い方法
             ]);
 
         // ユーザーの購入履歴ページにアクセスし、購入した商品名が表示されていることを確認
