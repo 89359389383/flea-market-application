@@ -70,13 +70,14 @@ Route::middleware('auth')->group(function () {
     // 購入、住所変更機能
     Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show'); // 購入画面表示
     Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store'); // 購入処理
+    Route::get('/stripe/checkout/{item_id}', [PurchaseController::class, 'checkout'])->name('stripe.checkout');
     Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit'); // 住所変更画面表示
     Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update'); // 住所変更処理
 
     // ユーザー機能
-    Route::get('/mypage', [UserController::class, 'show'])->name('user.show'); // プロフィール画面
-    Route::get('/mypage/profile', [UserController::class, 'edit'])->name('user.edit'); // プロフィール編集画面表示
-    Route::post('/mypage/profile', [UserController::class, 'update'])->name('user.update'); // プロフィール編集処理
+    Route::get('/mypage', [UserController::class, 'show'])->name('user.show');
     Route::get('/mypage/buy', [UserController::class, 'buyList'])->name('user.buyList');
     Route::get('/mypage/sell', [UserController::class, 'sellList'])->name('user.sellList');
+    Route::get('/mypage/profile', [UserController::class, 'edit'])->name('user.edit'); // プロフィール編集画面表示
+    Route::post('/mypage/profile', [UserController::class, 'update'])->name('user.update'); // プロフィール編集処理
 });

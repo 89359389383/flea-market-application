@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="purchase-button">購入する</button>
+            <button type="button" id="purchase-button" class="purchase-button">購入する</button>
         </div>
     </div>
 </form>
@@ -91,6 +91,20 @@
             // 何も選択せずに閉じた場合は「選択してください」を戻す
             if (!paymentSelect.value) {
                 paymentSelect.insertAdjacentHTML("afterbegin", '<option value="" selected>選択してください</option>');
+            }
+        });
+
+        document.getElementById("purchase-button").addEventListener("click", function(event) {
+            const paymentMethod = paymentSelect.value;
+
+            if (paymentMethod === "カード払い") {
+                // Stripeのテスト用決済ページへ遷移
+                window.location.href = "https://buy.stripe.com/test_6oEaIy2NBeKn6EE144"; // Stripeのテスト用URL
+            } else if (paymentMethod === "コンビニ払い") {
+                // フォームを送信（通常の処理）
+                document.querySelector("form").submit();
+            } else {
+                alert("支払い方法を選択してください");
             }
         });
     });
