@@ -11,6 +11,8 @@ use App\Http\Requests\PurchaseRequest;
 use Illuminate\Support\Facades\Log; // Logクラスをインポート
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB; // DBクラスをインポート
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class PurchaseController extends Controller
 {
@@ -40,7 +42,6 @@ class PurchaseController extends Controller
      * URL: /purchase/{item_id}
      * メソッド: POST (認証必須)
      */
-
     public function store(PurchaseRequest $request, $item_id)
     {
         try {
@@ -114,24 +115,87 @@ class PurchaseController extends Controller
         }
     }
 
+    /**
+     * Stripe 決済ページへリダイレクト
+     */
     public function checkout($item_id)
     {
         try {
-            $item = Item::findOrFail($item_id);
-            $stripePublicKey = env('STRIPE_PUBLIC'); // .env から公開キーを取得
-
-            // Stripe の決済ページ URL（仮）
-            $stripeCheckoutUrl = "https://checkout.stripe.com/pay/test_checkout_session";
-
-            Log::info("Stripe決済ページに遷移", [
+            Log::info("【Stripe決済開始】", [
                 'user_id' => auth()->id(),
-                'item_id' => $item_id,
-                'url' => $stripeCheckoutUrl
+                'item_id' => $item_id
             ]);
 
-            return redirect()->away($stripeCheckoutUrl);
+            // StripeのAPIキー設定
+            $stripeKey = env('STRIPE_SECRET_KEY');
+            Stripe::setApiKey($stripeKey);
+            Log::info("【Stripe APIキー設定完了】");
+
+            // 商品情報取得
+            $item = Item::findOrFail($item_id);
+            Log::info("【商品情報取得】", [
+                'item_id' => $item->id,
+                'item_name' => $item->name,
+                'item_price' => $item->price,
+                'item_image' => $item->image
+            ]);
+
+            // ドメイン設定
+            $YOUR_DOMAIN = env('APP_URL', 'http://localhost');
+            Log::info("【ドメイン設定】", ['YOUR_DOMAIN' => $YOUR_DOMAIN]);
+
+            // 画像URLの処理
+            if (filter_var($item->image, FILTER_VALIDATE_URL)) {
+                $image_url = $item->image;
+            } else {
+                $image_url = asset('storage/' . $item->image);
+            }
+            $image_url = str_replace('+', '%20', $image_url);
+            Log::info("【商品画像URL】", ['image_url' => $image_url]);
+
+            // **日本円の価格調整（JPYの場合は100倍しない）**
+            $currency = 'jpy';
+            $unit_amount = ($currency === 'jpy') ? $item->price : $item->price * 100;
+            Log::info("【価格情報】", ['unit_amount' => $unit_amount]);
+
+            // Stripe Checkout セッションの作成
+            Log::info("【Stripe Checkoutセッション作成開始】");
+
+            $checkout_session = Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => $currency,
+                        'product_data' => [
+                            'name' => $item->name,
+                            'images' => [$image_url], // Stripe用画像
+                        ],
+                        'unit_amount' => $unit_amount,
+                    ],
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => $YOUR_DOMAIN . '/success',
+                'cancel_url' => $YOUR_DOMAIN . '/cancel',
+            ]);
+
+            Log::info("【Stripe Checkoutセッション作成完了】", [
+                'session_id' => $checkout_session->id,
+                'checkout_url' => $checkout_session->url
+            ]);
+
+            // Stripe決済ページへリダイレクト
+            Log::info("【Stripe決済ページにリダイレクト】", [
+                'redirect_url' => $checkout_session->url
+            ]);
+
+            return redirect($checkout_session->url);
         } catch (\Exception $e) {
-            Log::error("Stripe決済ページのリダイレクトに失敗", ['error' => $e->getMessage()]);
+            Log::error("【Stripe決済エラー】", [
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString()
+            ]);
+
             return redirect()->route('purchase.show', ['item_id' => $item_id])
                 ->with('error', '決済画面への遷移に失敗しました。');
         }
