@@ -29,19 +29,27 @@ class AuthController extends Controller
      * URL: /register
      * メソッド: POST
      */
-    public function store(RegisterRequest $request)
+    public function store(Request $request)
     {
+        // バリデーション
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // ユーザーを作成（ただし、ログインはさせない）
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => bcrypt($request->password),
         ]);
 
-        // ユーザーを自動的にログインさせます
-        Auth::login($user);
+        // 認証メールを送信
+        $user->sendEmailVerificationNotification();
 
-        // ユーザーをプロフィール設定ページにリダイレクトします
-        return redirect()->route('user.edit');
+        // メール認証ページにリダイレクト
+        return redirect()->route('verification.notice')->with('message', '認証メールを送信しました。メールを確認してください。');
     }
 
     /**

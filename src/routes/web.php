@@ -7,6 +7,9 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +81,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/mypage', [UserController::class, 'show'])->name('user.show');
     Route::get('/mypage/buy', [UserController::class, 'buyList'])->name('user.buyList');
     Route::get('/mypage/sell', [UserController::class, 'sellList'])->name('user.sellList');
-    Route::get('/mypage/profile', [UserController::class, 'edit'])->name('user.edit'); // プロフィール編集画面表示
-    Route::post('/mypage/profile', [UserController::class, 'update'])->name('user.update'); // プロフィール編集処理
+
+    // プロフィール編集関連
+    Route::get('/mypage/profile', [UserController::class, 'edit'])->name('user.edit'); // プロフィール編集画面
+    Route::post('/mypage/profile', [UserController::class, 'update'])->name('user.update'); // プロフィール更新処理
 });
+
+// メール認証関連のルート
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// メール認証を完了したら、自動ログインしプロフィール設定へ
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $user = $request->user();
+    $request->fulfill(); // 認証を完了
+
+    Auth::login($user); // 認証完了したら自動ログイン
+
+    return redirect('/mypage/profile'); // プロフィール設定画面へリダイレクト
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+// メール認証の再送信
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('resent', true);
+})->middleware(['auth'])->name('verification.resend');
