@@ -29,15 +29,8 @@ class AuthController extends Controller
      * URL: /register
      * メソッド: POST
      */
-    public function store(Request $request)
+    public function store(RegisterRequest $request)
     {
-        // バリデーション
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
         // ユーザーを作成（ただし、ログインはさせない）
         $user = User::create([
             'name' => $request->name,
