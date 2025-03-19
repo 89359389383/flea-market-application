@@ -15,21 +15,13 @@ class ItemsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        // `user_id = 1` のユーザーが存在しない場合、新しく作成する
-        $user = User::firstOrCreate(
-            ['id' => 1], // 検索条件
-            [
-                'name' => 'テストユーザー',
-                'email' => 'test@example.com',
-                'password' => Hash::make('password'),
-                'postal_code' => '123-4567',
-                'address' => '東京都新宿区',
-                'building' => 'サンプルビル101',
-                'profile_image' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
+        // `UsersTableSeeder` で作成したユーザーを取得
+        $user = User::where('email', 'test@example.com')->first();
+
+        if (!$user) {
+            // ユーザーが存在しない場合はエラーを出す（デバッグ用）
+            throw new \Exception("ユーザーが見つかりません。先に UsersTableSeeder を実行してください。");
+        }
 
         // 商品データリスト
         $items = [
