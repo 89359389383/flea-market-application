@@ -79,8 +79,6 @@ Route::middleware('auth')->group(function () {
 
     // ユーザー機能
     Route::get('/mypage', [UserController::class, 'show'])->name('user.show');
-    Route::get('/mypage/buy', [UserController::class, 'buyList'])->name('user.buyList');
-    Route::get('/mypage/sell', [UserController::class, 'sellList'])->name('user.sellList');
 
     // プロフィール編集関連
     Route::get('/mypage/profile', [UserController::class, 'edit'])->name('user.edit'); // プロフィール編集画面
