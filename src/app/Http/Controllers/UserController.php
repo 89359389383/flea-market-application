@@ -16,19 +16,21 @@ class UserController extends Controller
      * URL: /mypage
      * メソッド: GET (認証必須)
      */
-    public function show()
+    public function show(Request $request)
     {
-        // 現在ログインしているユーザーの情報を取得します
         $user = auth()->user();
+        $tab = $request->query('page', 'sell'); // デフォルトは'sell'
 
-        // 出品した商品を取得
-        $items = $user->items;
+        if ($tab === 'buy') {
+            $items = $user->purchases()->with('item')->get()->map(fn($purchase) => $purchase->item);
+        } else {
+            $items = Item::where('user_id', $user->id)->get();
+        }
 
-        // ビュー(user/show.blade.php)にユーザー情報を渡して表示します
         return view('user.show', [
             'user' => $user,
             'items' => $items,
-            'tab' => 'sell' // デフォルト値として "sell" をセット
+            'tab' => $tab
         ]);
     }
 

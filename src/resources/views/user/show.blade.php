@@ -25,12 +25,12 @@
 
 @php
 // ルートから `tab` パラメータが渡っている場合、それを優先
-$tab = request()->query('tab', $tab ?? 'sell');
+$tab = request()->query('page', $tab ?? 'sell');
 @endphp
 
 <nav class="tabs">
-    <a href="{{ route('user.sellList') }}" class="tab move-right  {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
-    <a href="{{ route('user.buyList') }}" class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
+    <a href="{{ route('user.show', ['page' => 'sell']) }}" class="tab move-right {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
+    <a href="{{ route('user.show', ['page' => 'buy']) }}" class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
 </nav>
 
 <div class="product-grid">
