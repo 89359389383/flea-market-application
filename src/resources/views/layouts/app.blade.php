@@ -18,8 +18,8 @@
             </div>
         </div>
 
-        <!-- ログイン・会員登録ページでは非表示 -->
-        @if (!Request::is('login') && !Request::is('register'))
+        <!-- ログイン・会員登録ページ、メール認証ページでは非表示 -->
+        @if (!Request::is('login') && !Request::is('register') && !Request::is('email/verify'))
         <div class="header-center">
             <!-- ⭐️【修正】現在のタブに応じて検索フォームの遷移先を変更 -->
             <form method="GET" action="{{ ($tab ?? '') == 'mylist' ? route('items.mylist') : route('items.search') }}">
