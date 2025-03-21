@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-<form action="{{ route('purchase.store', ['item_id' => $item->id]) }}" method="POST">
+<form id="purchase-form" action="{{ route('purchase.store', ['item_id' => $item->id]) }}" method="POST">
     @csrf
     <div class="container">
         <!-- メインコンテンツ（左側） -->
@@ -65,10 +65,8 @@
                 </div>
             </div>
 
-            <form id="checkout-form" action="{{ route('stripe.checkout', ['item_id' => $item->id]) }}" method="GET">
-                @csrf
-                <button type="button" id="purchase-button" class="purchase-button">購入する</button>
-            </form>
+            <!-- ボタン -->
+            <button type="button" id="purchase-button" class="purchase-button">購入する</button>
         </div>
     </div>
 </form>
@@ -76,39 +74,43 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const paymentSelect = document.getElementById("payment-method");
+        const purchaseForm = document.getElementById("purchase-form");
+        const purchaseButton = document.getElementById("purchase-button");
         const defaultOption = paymentSelect.querySelector("option[value='']");
 
         paymentSelect.addEventListener("focus", function() {
-            // 「選択してください」を削除
             if (defaultOption) {
                 defaultOption.remove();
             }
         });
 
         paymentSelect.addEventListener("change", function() {
-            // 選択した値を反映
             document.getElementById("selected-payment-method").textContent = paymentSelect.value;
         });
 
         paymentSelect.addEventListener("blur", function() {
-            // 何も選択せずに閉じた場合は「選択してください」を戻す
             if (!paymentSelect.value) {
                 paymentSelect.insertAdjacentHTML("afterbegin", '<option value="" selected>選択してください</option>');
             }
         });
 
-        document.getElementById("purchase-button").addEventListener("click", function(event) {
+        purchaseButton.addEventListener("click", function() {
             const paymentMethod = paymentSelect.value;
 
             if (paymentMethod === "カード払い") {
-                // 新しいフォームを送信
-                document.getElementById("checkout-form").submit();
+                // カード払い → Stripe Checkout にリダイレクト
+                purchaseForm.setAttribute("action", "{{ route('stripe.checkout', ['item_id' => $item->id]) }}");
+                purchaseForm.setAttribute("method", "GET");
             } else if (paymentMethod === "コンビニ払い") {
-                console.log("コンビニ払いが選択されました。purchase.storeを送信します。");
-                document.querySelector("form[action*='purchase']").submit();
+                // コンビニ払い → 通常の購入処理
+                purchaseForm.setAttribute("action", "{{ route('purchase.store', ['item_id' => $item->id]) }}");
+                purchaseForm.setAttribute("method", "POST");
             } else {
                 alert("支払い方法を選択してください");
+                return;
             }
+
+            purchaseForm.submit();
         });
     });
 </script>
