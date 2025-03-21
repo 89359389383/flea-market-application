@@ -48,7 +48,7 @@
 
         <h2 class="section-title">商品説明</h2>
         <div class="product-description">
-            <p>{{ $item->description }}</p>
+            {{ $item->description }}
         </div>
 
         <h2 class="section-title">商品の情報</h2>
@@ -86,7 +86,7 @@
         </div>
 
         <h3 class="section-title">商品へのコメント</h3>
-        <form action="{{ route('items.comment.store', $item->id) }}" method="POST">
+        <form action="{{ route('items.comment.store', $item->id) }}" method="POST" class="items.comment">
             @csrf
             <textarea class="comment-input" name="comment" placeholder="コメントを入力してください"></textarea>
             @error('comment')
