@@ -10,6 +10,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use Illuminate\Support\Facades\Auth;  // 認証処理を行うために使用します
 use Illuminate\Support\Facades\Hash;  // パスワードのハッシュ化に使用します
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -38,8 +39,22 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
+        // ユーザーを自動ログイン
+        Auth::login($user);  // 追加: ユーザーをログイン状態にする
+
+        // ログ出力: ユーザー作成完了
+        Log::info('User created and logged in successfully', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+        ]);
+
         // 認証メールを送信
         $user->sendEmailVerificationNotification();
+
+        // ログ出力: メール送信
+        Log::info('Verification email sent to user', [
+            'email' => $user->email,
+        ]);
 
         // メール認証ページにリダイレクト
         return redirect()->route('verification.notice')->with('message', '認証メールを送信しました。メールを確認してください。');

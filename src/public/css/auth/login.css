@@ -88,7 +88,7 @@ input[type="password"] {
     }
 }
 
-/* タブレット対応（768px 以上 850px 以下） */
+/* タブレット対応（850px 以下） */
 @media screen and (max-width: 850px) {
     .container {
         max-width: 80%;
@@ -118,7 +118,7 @@ input[type="password"] {
     }
 }
 
-/* スマートフォン対応（375px 以上 767px 以下） */
+/* スマートフォン対応（767px 以下） */
 @media screen and (max-width: 767px) {
     .container {
         max-width: 80%;
