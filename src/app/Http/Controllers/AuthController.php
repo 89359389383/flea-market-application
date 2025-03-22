@@ -57,7 +57,7 @@ class AuthController extends Controller
         ]);
 
         // メール認証ページにリダイレクト
-        return redirect()->route('verification.notice')->with('message', '認証メールを送信しました。メールを確認してください。');
+        return redirect()->route('verification.notice');
     }
 
     /**

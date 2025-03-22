@@ -33,4 +33,4 @@
 
 ## ER 図
 
-![ER Diagram](docs/模擬案件フリマER図.png)
+![ER Diagram](docs/フリマ模擬案件ER図.png)
