@@ -94,7 +94,7 @@ class RegisterTest extends TestCase
     }
 
     /**
-     * 正しい情報が入力された場合、会員登録が成功しログイン画面にリダイレクトされるかテスト
+     * 正しい情報が入力された場合、会員登録が成功しメール認証画面にリダイレクトされるかテスト
      */
     public function test_successful_registration_redirects_to_login()
     {
@@ -105,7 +105,7 @@ class RegisterTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        // 会員登録が成功すると、プロフィール画面へリダイレクトすることを確認
+        // 会員登録が成功すると、メール認証画面へリダイレクトすることを確認
         $response->assertRedirect('/email/verify');
 
         // データベースにユーザーが登録されているか確認

@@ -43,7 +43,6 @@ class ProfileTest extends TestCase
             ->assertSee($item2->name)
             ->assertDontSee($purchasedItem->name);
 
-        // ✅ 修正箇所：buyListではなく、user.show に page=buy パラメータを付けてアクセス
         $response = $this->get(route('user.show', ['page' => 'buy']));
 
         $response->assertStatus(200)

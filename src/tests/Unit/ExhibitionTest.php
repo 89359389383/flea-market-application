@@ -29,7 +29,6 @@ class ExhibitionTest extends TestCase
         $itemData = [
             'image' => UploadedFile::fake()->create('test_image.jpg', 100), // 100KB のダミーファイル
         ];
-        $this->actingAs($user); // ユーザーをログイン状態にする
 
         // カテゴリを複数作成（商品に紐付けるため）
         $category1 = Category::factory()->create();

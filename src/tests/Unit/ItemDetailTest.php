@@ -21,12 +21,11 @@ class ItemDetailTest extends TestCase
             'brand_name' => 'テストブランド',
             'price' => 5000,
             'description' => 'これはテスト用の商品です',
-            'condition' => '良好', // 修正済み
+            'condition' => '良好',
             'likes_count' => 10,
             'comments_count' => 5
         ]);
 
-        // **修正: 'item.show' → 'items.show'**
         $response = $this->get(route('items.show', ['item_id' => $item->id]));
 
         $response->assertStatus(200);
@@ -48,7 +47,6 @@ class ItemDetailTest extends TestCase
         $categories = Category::factory()->count(3)->create();
         $item->categories()->attach($categories->pluck('id'));
 
-        // **修正: 'item.show' → 'items.show'**
         $response = $this->get(route('items.show', ['item_id' => $item->id]));
 
         $response->assertStatus(200);
