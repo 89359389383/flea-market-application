@@ -106,4 +106,21 @@ class MyListTest extends TestCase
         // いいねした他のユーザーの商品は表示される
         $response->assertSee($likedItem->name);
     }
+
+    public function test_guest_user_cannot_access_mylist_and_sees_nothing()
+    {
+        // 商品をいくつか作成（表示されてはならない）
+        $items = Item::factory()->count(2)->create();
+
+        // 🔽 未ログイン状態でマイリストページにアクセス
+        $response = $this->get('/mylist');
+
+        // 🔽 ログインページにリダイレクトされることを確認
+        $response->assertRedirect(route('login'));
+
+        // 🔽 レスポンス本文に商品名が含まれていない（商品が表示されない）ことを確認
+        foreach ($items as $item) {
+            $response->assertDontSee($item->name);
+        }
+    }
 }

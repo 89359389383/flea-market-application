@@ -106,7 +106,7 @@ class RegisterTest extends TestCase
         ]);
 
         // 会員登録が成功すると、プロフィール画面へリダイレクトすることを確認
-        $response->assertRedirect('/mypage/profile');
+        $response->assertRedirect('/email/verify');
 
         // データベースにユーザーが登録されているか確認
         $this->assertDatabaseHas('users', ['email' => 'test@example.com']);

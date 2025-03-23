@@ -86,7 +86,7 @@ class PurchaseTest extends TestCase
             ]);
 
         // ユーザーの購入履歴ページにアクセスし、購入した商品名が表示されていることを確認
-        $this->get(route('user.buyList'))
+        $this->get(route('user.show', ['page' => 'buy']))
             ->assertSee($item->name);  // 購入した商品の名前が表示されているか確認
     }
 }

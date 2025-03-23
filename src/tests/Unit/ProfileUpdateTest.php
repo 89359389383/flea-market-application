@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileUpdateTest extends TestCase
 {
@@ -34,5 +35,10 @@ class ProfileUpdateTest extends TestCase
             ->assertSee($user->name) // ユーザー名が表示されていること
             ->assertSee($user->postal_code) // 郵便番号が表示されていること
             ->assertSee($user->address); // 住所が表示されていること
+
+        // 5. プロフィール画像がストレージに保存されていることを確認
+        if ($user->profile_image) {
+            Storage::disk('public')->assertExists('profile_images/' . $user->profile_image); // 画像の保存場所とパスが正しいことを確認
+        }
     }
 }

@@ -118,7 +118,7 @@ h1 {
 
 /* ======== レスポンシブ対応 ======== */
 
-/* タブレット（768px以上） */
+/* タブレット（850px以下） */
 @media screen and (max-width: 850px) {
     .profile-section {
         max-width: 70%;

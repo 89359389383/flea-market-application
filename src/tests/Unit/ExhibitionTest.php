@@ -31,13 +31,14 @@ class ExhibitionTest extends TestCase
         ];
         $this->actingAs($user); // ユーザーをログイン状態にする
 
-        // カテゴリを作成（商品に紐付けるため）
-        $category = Category::factory()->create();
+        // カテゴリを複数作成（商品に紐付けるため）
+        $category1 = Category::factory()->create();
+        $category2 = Category::factory()->create();
 
         // 画像ファイルのモックを作成
         $image = UploadedFile::fake()->create('test_image.jpg', 100); // 100KB のダミーファイル
 
-        // 出品する商品のデータを準備
+        // 出品する商品のデータを準備（複数カテゴリを設定）
         $itemData = [
             'name' => 'テスト商品', // 商品名
             'description' => 'これはテスト商品の説明です。', // 商品説明
@@ -45,7 +46,7 @@ class ExhibitionTest extends TestCase
             'condition' => '良好', // 商品の状態
             'price' => 5000, // 販売価格
             'image' => $image, // モックの画像をセット
-            'categories' => [$category->id], // カテゴリIDを配列で指定
+            'categories' => [$category1->id, $category2->id], // 複数カテゴリIDを配列で指定
         ];
 
         // 商品出品リクエストを送信（POST）
@@ -63,10 +64,11 @@ class ExhibitionTest extends TestCase
         // 画像が正しく保存されたか確認
         Storage::disk('public')->assertExists('items/' . $image->hashName());
 
-        // カテゴリの関連付けが行われたか確認
+        // カテゴリの関連付けが行われたか確認（複数カテゴリ）
         $item = Item::where('name', 'テスト商品')->first();
         $this->assertNotNull($item, 'アイテムがDBに存在しません');
-        $this->assertTrue($item->categories->contains($category->id), 'カテゴリが正しく保存されていません');
+        $this->assertTrue($item->categories->contains($category1->id), 'カテゴリ1が正しく保存されていません');
+        $this->assertTrue($item->categories->contains($category2->id), 'カテゴリ2が正しく保存されていません');
 
         // 出品後のリダイレクト先を確認（トップページへ）
         $response->assertRedirect('/');
