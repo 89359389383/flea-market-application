@@ -1,4 +1,4 @@
-# Pigly
+# フリマアプリ
 
 ## 環境構築
 
@@ -11,13 +11,14 @@
 
 ### Laravel 環境構築
 
-1.  docker-compose exec app php bash
+1.  docker-compose exec php bash
 2.  composer install
 3.  .env.example をコピーして.env ファイルを作成し、環境変数を変更<br>
     ※.env ファイルの DB_DATABASE、DB_USERNAME、DB_PASSWORD の値を docker-compose.yml に記載の値に変更
 4.  php artisan key:generate
 5.  php artisan migrate
 6.  php artisan db:seed
+7.  php artisan storage:link
 
 ## 使用技術
 
@@ -25,6 +26,10 @@
 -   Laravel: 8.83.8
 -   MySQL: 8.0.26
 -   mailhog
+
+## 機能補足（商品購入機能）
+
+-   購入機能について基本要件と応用要件を両立させるため、商品購入ページにてコンビニ払いを選択して購入するとそのまま Sold 処理が実行され、カード払いを選択して購入すると stripe の決済画面に移動する
 
 ## URL
 
