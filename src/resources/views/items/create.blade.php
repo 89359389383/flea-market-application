@@ -43,9 +43,10 @@
                 </div>
                 <!-- 選択されたカテゴリーを送信 -->
                 <input type="hidden" name="categories[]" id="selected-categories">
-                @error('categories')
+                @error('categories.0')
                 <p class="error-message" style="color: red;">{{ $message }}</p>
                 @enderror
+
             </div>
 
             <!-- 商品の状態 -->
@@ -132,6 +133,11 @@
 
             // hidden input にセット
             document.getElementById('selected-categories').value = selectedCategories.join(',');
+
+            // Ensure that if no category is selected, we send an empty string instead of null
+            if (selectedCategories.length === 0) {
+                document.getElementById('selected-categories').value = ''; // Set to empty string
+            }
         });
     });
 </script>

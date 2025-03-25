@@ -4,16 +4,20 @@ use Tests\TestCase;
 use App\Models\Item;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Comment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Database\Factories\CommentFactory;
 
 class ItemDetailTest extends TestCase
 {
-    use RefreshDatabase; // データベースをリセットする設定
+    use RefreshDatabase;
 
     /** @test */
     public function 商品詳細ページに必要な情報が表示される()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'name' => 'テストユーザー',
+        ]);
 
         $item = Item::factory()->create([
             'user_id' => $user->id,
@@ -23,7 +27,19 @@ class ItemDetailTest extends TestCase
             'description' => 'これはテスト用の商品です',
             'condition' => '良好',
             'likes_count' => 10,
-            'comments_count' => 5
+            'comments_count' => 1,
+            'image' => 'test_image.jpg',
+        ]);
+
+        $categories = Category::factory()->count(2)->create();
+        $item->categories()->attach($categories->pluck('id'));
+
+        // コメントとコメントしたユーザー情報を追加
+        $commentUser = User::factory()->create(['name' => 'コメントユーザー']);
+        $comment = Comment::factory()->create([
+            'item_id' => $item->id,
+            'user_id' => $commentUser->id,
+            'comment' => 'これはテストコメントです。',
         ]);
 
         $response = $this->get(route('items.show', ['item_id' => $item->id]));
@@ -36,22 +52,15 @@ class ItemDetailTest extends TestCase
         $response->assertSee($item->condition);
         $response->assertSee($item->likes_count);
         $response->assertSee($item->comments_count);
-    }
+        $response->assertSee($item->image);
 
-    /** @test */
-    public function 商品詳細ページに複数のカテゴリが表示される()
-    {
-        $user = User::factory()->create();
-        $item = Item::factory()->create(['user_id' => $user->id]);
-
-        $categories = Category::factory()->count(3)->create();
-        $item->categories()->attach($categories->pluck('id'));
-
-        $response = $this->get(route('items.show', ['item_id' => $item->id]));
-
-        $response->assertStatus(200);
+        // カテゴリ情報
         foreach ($categories as $category) {
             $response->assertSee($category->name);
         }
+
+        // コメント情報
+        $response->assertSee($comment->comment);
+        $response->assertSee($commentUser->name);
     }
 }

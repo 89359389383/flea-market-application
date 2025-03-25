@@ -12,13 +12,23 @@
     <form action="{{ route('login.store') }}" method="POST">
         @csrf
 
+        {{-- ▼ここに認証エラー用のメッセージを表示 --}}
+        @if ($errors->has('email') && $errors->first('email') === 'ログイン情報が登録されていません')
+        <p class="error-message" style="color: red; margin-bottom: 10px;">
+            {{ $errors->first('email') }}
+        </p>
+        @endif
+
         <div class="form-group">
             <label for="email">メールアドレス</label>
             <input type="email" id="email" name="email" value="{{ old('email') }}">
+            {{-- ▼バリデーションエラーのみ表示（ログイン失敗以外） --}}
             @error('email')
+            @if ($message !== 'ログイン情報が登録されていません')
             <p class="error-message" style="color: red;">
                 {!! nl2br(e($message)) !!}
             </p>
+            @endif
             @enderror
         </div>
 
