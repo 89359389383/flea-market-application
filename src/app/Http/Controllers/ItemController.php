@@ -22,22 +22,38 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
-        // タブのパラメータを取得
         $tab = $request->query('tab', 'recommend');
-
-        // 現在のユーザーを取得
         $user = Auth::user();
+        $items = collect(); // 初期化
 
-        // 自分が出品した商品を除外
-        $query = Item::with('user');
+        if ($tab === 'mylist') {
+            // 認証チェック
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'マイリストを見るにはログインが必要です。');
+            }
 
-        if ($user) {
-            $query->where('user_id', '!=', $user->id);
+            $likedItemIds = $user->likes()->pluck('item_id');
+            $query = Item::whereIn('id', $likedItemIds)->with('user');
+
+            $searchQuery = $request->query('name', '');
+            if (!empty($searchQuery)) {
+                $query->where('name', 'like', "%{$searchQuery}%");
+            }
+
+            $items = $query->get();
+        } else {
+            $query = Item::with('user');
+            if ($user) {
+                $query->where('user_id', '!=', $user->id);
+            }
+            $items = $query->get();
         }
 
-        $items = $query->get();
-
-        return view('items.index', ['items' => $items, 'tab' => $tab]); // ここで $tab をビューに渡す
+        return view('items.index', [
+            'items' => $items,
+            'tab' => $tab,
+            'searchQuery' => $request->query('name', ''),
+        ]);
     }
 
     public function search(Request $request)

@@ -22,7 +22,7 @@
         @if (!Request::is('login') && !Request::is('register') && !Request::is('email/verify'))
         <div class="header-center">
             <!-- ⭐️【修正】現在のタブに応じて検索フォームの遷移先を変更 -->
-            <form method="GET" action="{{ ($tab ?? '') == 'mylist' ? route('items.mylist') : route('items.search') }}">
+            <form method="GET" action="{{ ($tab ?? '') == 'mylist' ? route('items.index') : route('items.search') }}">
                 <input type="text" name="name" value="{{ request('name') }}" placeholder="なにをお探しですか？" class="search-input">
                 <button type="submit" class="search-button">検索</button>
             </form>

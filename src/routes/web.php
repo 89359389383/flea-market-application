@@ -60,7 +60,7 @@ Route::middleware('auth')->group(function () {
     // 商品出品、マイリスト表示
     Route::get('/sell', [ItemController::class, 'create'])->name('items.create'); // 出品画面表示
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store'); // 出品処理
-    Route::get('/mylist', [ItemController::class, 'mylist'])->name('items.mylist'); // マイリスト(いいねした商品)
+    // Route::get('/mylist', [ItemController::class, 'mylist'])->name('items.mylist'); // マイリスト(いいねした商品)
 
     // いいね機能
     Route::post('/items/{id}/toggle-like', [ItemController::class, 'toggleLike'])

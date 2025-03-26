@@ -3,87 +3,94 @@
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Item;
-use App\Models\Like;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-// いいね機能のテストをするためのクラス
 class LikeTest extends TestCase
 {
-    use RefreshDatabase; // テスト後にデータベースをリセットする
+    use RefreshDatabase;
 
     /** @test */
     public function ユーザーがいいねを追加できる()
     {
-        // テスト用のユーザーを作成
         $user = User::factory()->create()->first();
-
-        // テスト用の商品を作成
         $item = Item::factory()->create();
 
-        // ユーザーとしてログイン
         $this->actingAs($user);
 
-        // いいねを押す（リクエストを送る）
-        $response = $this->post(route('items.toggleLike', ['id' => $item->id]));
+        // 商品詳細ページを開いていいね数を確認（初期値0）
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertStatus(200);
+        $response->assertSeeText('0'); // 初期いいね数
 
-        // データベースにいいねが保存されていることを確認
+        // いいねを押す
+        $this->post(route('items.toggleLike', ['id' => $item->id]));
+
+        // データベース確認
         $this->assertDatabaseHas('likes', [
             'user_id' => $user->id,
             'item_id' => $item->id,
         ]);
 
-        // 正常にリダイレクトされることを確認
-        $response->assertRedirect();
+        // 商品詳細ページでいいね数が1に増えていることを確認
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertSeeText('1');
+
+        // リダイレクト確認
+        $response->assertStatus(200);
     }
 
     /** @test */
     public function いいね済みのアイテムのアイコンが変化する()
     {
-        // テスト用のユーザーと商品を作成
         $user = User::factory()->create()->first();
         $item = Item::factory()->create();
 
-        // ユーザーとしてログイン
         $this->actingAs($user);
 
-        // まず、いいねを押す
+        // 商品詳細ページを開く
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertStatus(200);
+
+        // いいねを押す
         $this->post(route('items.toggleLike', ['id' => $item->id]));
 
-        // いいねが追加されたか確認
-        $this->assertDatabaseHas('likes', [
-            'user_id' => $user->id,
-            'item_id' => $item->id,
-        ]);
-
-        // いいねアイコンの状態を確認（フロントエンドのテストは通常Laravelではできないので省略）
+        // 商品詳細ページを再取得してアイコンの変化確認（CSSクラスに "liked" が含まれているか）
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertSee('like-button liked'); // フロントでの「色が変わった」＝クラス名の切り替え
     }
 
     /** @test */
     public function いいねを解除できる()
     {
-        // テスト用のユーザーと商品を作成
         $user = User::factory()->create()->first();
         $item = Item::factory()->create();
 
-        // ユーザーとしてログイン
         $this->actingAs($user);
 
-        // いいねを追加
-        $this->post(route('items.toggleLike', ['id' => $item->id]));
+        // 商品詳細ページ確認（初期0）
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertSeeText('0');
 
-        // いいねがデータベースにあることを確認
+        // いいね追加
+        $this->post(route('items.toggleLike', ['id' => $item->id]));
         $this->assertDatabaseHas('likes', [
             'user_id' => $user->id,
             'item_id' => $item->id,
         ]);
 
-        // いいねを解除
-        $this->post(route('items.toggleLike', ['id' => $item->id]));
+        // 商品詳細ページ確認（1）
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertSeeText('1');
 
-        // いいねが削除されたことを確認
+        // いいね解除
+        $this->post(route('items.toggleLike', ['id' => $item->id]));
         $this->assertDatabaseMissing('likes', [
             'user_id' => $user->id,
             'item_id' => $item->id,
         ]);
+
+        // 商品詳細ページ確認（0に戻っているか）
+        $response = $this->get(route('items.show', ['item_id' => $item->id]));
+        $response->assertSeeText('0');
     }
 }
