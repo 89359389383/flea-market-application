@@ -32,7 +32,7 @@ class PaymentTest extends TestCase
         $loginResponse->assertRedirect(route('items.index'));
 
         // 🔽《追加》商品詳細ページにアクセス（テストケース①の補足）
-        $itemDetailResponse = $this->actingAs($user)->get(route('item.show', ['item_id' => $item->id]));
+        $itemDetailResponse = $this->actingAs($user)->get(route('items.show', ['item_id' => $item->id]));
         $itemDetailResponse->assertStatus(200);
         $itemDetailResponse->assertSee($item->name);
 

@@ -63,7 +63,7 @@ class SearchTest extends TestCase
         $response->assertDontSee('スマートフォン'); // 検索キーワードに一致しない商品は表示されない
 
         // マイリストページへ遷移
-        $response = $this->get('/mylist?name=' . $searchKeyword);
+        $response = $this->get('/?tab=mylist&name=' . $searchKeyword);
 
         // 検索状態が保持されていることを確認
         $response->assertStatus(200);
