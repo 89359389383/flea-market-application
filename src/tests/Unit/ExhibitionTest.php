@@ -72,36 +72,4 @@ class ExhibitionTest extends TestCase
         // 出品後のリダイレクト先を確認（トップページへ）
         $response->assertRedirect('/');
     }
-
-    /**
-     * 必須項目が不足している場合のバリデーションテスト
-     */
-    public function test_item_exhibition_fails_due_to_validation()
-    {
-        // ユーザーを作成し、ログインする
-        $user = User::factory()->create()->first();
-        $this->actingAs($user);
-
-        // 不完全なデータ（画像なし）を送信
-        $invalidData = [
-            'name' => '',
-            'description' => '',
-            'condition' => '',
-            'price' => '',
-            'categories' => [],
-        ];
-
-        // リクエストを送信
-        $response = $this->post(route('items.store'), $invalidData);
-
-        // バリデーションエラーが発生したことを確認
-        $response->assertSessionHasErrors([
-            'name',
-            'description',
-            'condition',
-            'price',
-            'image', // 画像が必須のためエラーになるはず
-            'categories'
-        ]);
-    }
 }

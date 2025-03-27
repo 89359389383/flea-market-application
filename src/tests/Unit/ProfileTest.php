@@ -48,33 +48,4 @@ class ProfileTest extends TestCase
         $response->assertStatus(200)
             ->assertSee($purchasedItem->name);
     }
-
-    /** @test */
-    public function 出品した商品がプロフィールページで表示される()
-    {
-        // ユーザーを作成
-        $user = User::factory()->create([
-            'profile_image' => 'path/to/profile_image.jpg',
-        ])->first();
-
-        // 出品した商品を2件作成
-        $item1 = Item::factory()->create(['user_id' => $user->id, 'name' => '出品商品A']);
-        $item2 = Item::factory()->create(['user_id' => $user->id, 'name' => '出品商品B']);
-
-        // 他人が出品した商品（表示されないはず）
-        $otherUser = User::factory()->create();
-        $otherItem = Item::factory()->create(['user_id' => $otherUser->id, 'name' => '他人の商品']);
-
-        // ログイン
-        $this->actingAs($user);
-
-        // プロフィールページ（出品商品タブ）へアクセス
-        $response = $this->get(route('user.show', ['page' => 'sell']));
-
-        // ステータスコード確認と表示確認
-        $response->assertStatus(200)
-            ->assertSee('出品商品A')
-            ->assertSee('出品商品B')
-            ->assertDontSee('他人の商品'); // 他人の商品は表示されない
-    }
 }

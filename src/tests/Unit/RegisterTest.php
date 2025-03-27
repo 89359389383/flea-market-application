@@ -9,106 +9,111 @@ use Tests\TestCase;
 
 class RegisterTest extends TestCase
 {
-    // テストごとにデータベースをリセット（初期化）する
     use RefreshDatabase, MakesHttpRequests, WithFaker;
 
-    /**
-     * 名前が未入力の場合、バリデーションエラーが発生するかテスト
-     */
     public function test_name_is_required()
     {
-        // LaravelのHTTPリクエストを使って、会員登録APIをPOSTで送信
-        $response = $this->post('/register', [
-            'name' => '', // 名前を空にする
+        // 1. 会員登録ページを開く
+        $this->get(route('register.show'));
+
+        // 2. 名前を入力せずに、他の必要項目を入力
+        $formData = [
+            'name' => '',
             'email' => 'test@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ]);
+        ];
 
-        // レスポンスに「お名前を入力してください」というバリデーションエラーが含まれることを確認
+        // 3. 登録ボタンを押す
+        $response = $this->post(route('register.store'), $formData);
+
+        // 期待されるバリデーションメッセージを確認
         $response->assertSessionHasErrors(['name' => 'お名前を入力してください']);
     }
 
-    /**
-     * メールアドレスが未入力の場合、バリデーションエラーが発生するかテスト
-     */
     public function test_email_is_required()
     {
-        $response = $this->post('/register', [
+        $this->get(route('register.show'));
+
+        $formData = [
             'name' => 'テストユーザー',
-            'email' => '', // メールアドレスを空にする
+            'email' => '',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ]);
+        ];
 
-        // エラーメッセージ「メールアドレスを入力してください」が返ることを確認
+        $response = $this->post(route('register.store'), $formData);
+
         $response->assertSessionHasErrors(['email' => 'メールアドレスを入力してください']);
     }
 
-    /**
-     * パスワードが未入力の場合、バリデーションエラーが発生するかテスト
-     */
     public function test_password_is_required()
     {
-        $response = $this->post('/register', [
+        $this->get(route('register.show'));
+
+        $formData = [
             'name' => 'テストユーザー',
             'email' => 'test@example.com',
-            'password' => '', // パスワードを空にする
+            'password' => '',
             'password_confirmation' => '',
-        ]);
+        ];
 
-        // エラーメッセージ「パスワードを入力してください」が返ることを確認
+        $response = $this->post(route('register.store'), $formData);
+
         $response->assertSessionHasErrors(['password' => 'パスワードを入力してください']);
     }
 
-    /**
-     * パスワードが7文字以下の場合、バリデーションエラーが発生するかテスト
-     */
     public function test_password_must_be_at_least_8_characters()
     {
-        $response = $this->post('/register', [
+        $this->get(route('register.show'));
+
+        $formData = [
             'name' => 'テストユーザー',
             'email' => 'test@example.com',
-            'password' => 'pass123', // 7文字のパスワード
+            'password' => 'pass123', // 7文字
             'password_confirmation' => 'pass123',
-        ]);
+        ];
 
-        // エラーメッセージ「パスワードは8文字以上で入力してください」が返ることを確認
+        $response = $this->post(route('register.store'), $formData);
+
         $response->assertSessionHasErrors(['password' => 'パスワードは8文字以上で入力してください']);
     }
 
-    /**
-     * 確認用パスワードと一致しない場合、バリデーションエラーが発生するかテスト
-     */
     public function test_password_confirmation_must_match()
     {
-        $response = $this->post('/register', [
+        $this->get(route('register.show'));
+
+        $formData = [
             'name' => 'テストユーザー',
             'email' => 'test@example.com',
             'password' => 'password123',
-            'password_confirmation' => 'wrongpassword', // 確認用パスワードが異なる
-        ]);
+            'password_confirmation' => 'wrongpassword',
+        ];
 
-        // エラーメッセージ「パスワードと一致しません」が返ることを確認
+        $response = $this->post(route('register.store'), $formData);
+
         $response->assertSessionHasErrors(['password' => 'パスワードと一致しません']);
     }
 
-    /**
-     * 正しい情報が入力された場合、会員登録が成功しメール認証画面にリダイレクトされるかテスト
-     */
     public function test_successful_registration_redirects_to_login()
     {
-        $response = $this->post('/register', [
+        $this->get(route('register.show'));
+
+        $formData = [
             'name' => 'テストユーザー',
             'email' => 'test@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-        ]);
+        ];
 
-        // 会員登録が成功すると、メール認証画面へリダイレクトすることを確認
+        $response = $this->post(route('register.store'), $formData);
+
+        // メール認証画面へリダイレクトされることを確認
         $response->assertRedirect('/email/verify');
 
-        // データベースにユーザーが登録されているか確認
-        $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
+        // ユーザーがDBに登録されていることを確認
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@example.com',
+        ]);
     }
 }

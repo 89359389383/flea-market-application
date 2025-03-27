@@ -66,20 +66,19 @@ class ItemListTest extends TestCase
      */
     public function test_user_does_not_see_their_own_items()
     {
-        // 1. ユーザーを作成
-        $user = User::factory()->create();
+        // 1. ログインユーザーを作成
+        $user = User::factory()->create()->first();
 
-        // 2. ユーザーが出品した商品を作成
+        // 2. そのユーザーが出品した商品を作成
         $ownItem = Item::factory()->create(['user_id' => $user->id]);
 
-        // 3. 別のユーザーでログイン（自分の出品商品が見えないようにする）
-        $anotherUser = User::factory()->create()->first();
-        $this->actingAs($anotherUser);
+        // 3. そのユーザーでログインする
+        $this->actingAs($user);
 
         // 4. 商品一覧ページを開く
         $response = $this->get('/');
 
-        // 5. 自分が出品した商品の名前が表示されていないことを確認
+        // 5. 自分の出品した商品が一覧に表示されないことを確認
         $response->assertDontSee($ownItem->name);
     }
 }

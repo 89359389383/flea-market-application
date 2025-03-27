@@ -84,7 +84,7 @@ class AddressTest extends TestCase
             'postal_code' => $user->postal_code,
             'address' => $user->address,
             'building' => $user->building,
-            'payment_method' => 'カード払い',
+            'payment_method' => 'コンビニ払い',
         ]);
 
         // 購入データがデータベースに存在することを確認

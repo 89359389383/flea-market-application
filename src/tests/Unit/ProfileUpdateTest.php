@@ -9,36 +9,40 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileUpdateTest extends TestCase
 {
-    use RefreshDatabase; // データベースをリセットする機能を有効化
+    use RefreshDatabase;
 
     /**
      * プロフィール編集画面の初期値が正しく表示されることを確認する
      */
     public function test_profile_page_displays_initial_values_correctly()
     {
-        // 1. テスト用のユーザーを作成する
-        //    -> factoryを使って仮のユーザーをデータベースに保存する
-        $user = User::factory()->create()->first(); // first()メソッドを使用して単一のユーザーを取得
+        // ストレージのモック
+        Storage::fake('public');
 
-        // 2. ユーザーとしてログインする
-        //    -> actingAs() を使って認証済みの状態を作成
+        // プロフィール画像のパスを仮定（storage/app/public/profile_images に保存される想定）
+        $profileImagePath = 'profile_images/test_profile.jpg';
+
+        // ユーザー作成（profile_image パスを保存）
+        $user = User::factory()->create([
+            'profile_image' => $profileImagePath,
+            'postal_code' => '123-4567',
+            'address' => '東京都新宿区',
+        ]);
+
+        // 認証状態でアクセス
         $this->actingAs($user);
 
-        // 3. プロフィールページ（/mypage/profile）を開く
-        //    -> get() を使ってプロフィールページにアクセス
+        // プロフィール編集ページにアクセス
         $response = $this->get('/mypage/profile');
 
-        // 4. 各項目の初期値が正しく表示されていることを確認する
-        //    -> assertSee() でページに表示されていることをチェック
-        $response->assertStatus(200) // ステータスコードが200 (正常) であることを確認
-            ->assertSee($user->profile_image) // プロフィール画像のパスが表示されていること
-            ->assertSee($user->name) // ユーザー名が表示されていること
-            ->assertSee($user->postal_code) // 郵便番号が表示されていること
-            ->assertSee($user->address); // 住所が表示されていること
+        // HTML内に <img src="storage/..."> があるかを確認
+        $expectedImgTag = '<img id="image-preview" src="' . asset('storage/' . $profileImagePath) . '" alt="プロフィール画像" class="profile-preview">';
 
-        // 5. プロフィール画像がストレージに保存されていることを確認
-        if ($user->profile_image) {
-            Storage::disk('public')->assertExists('profile_images/' . $user->profile_image); // 画像の保存場所とパスが正しいことを確認
-        }
+        $response->assertStatus(200)
+            ->assertSee($user->name)
+            ->assertSee($user->postal_code)
+            ->assertSee($user->address)
+            ->assertSee($profileImagePath) // パスとして含まれていること
+            ->assertSee($expectedImgTag, false); // タグとして正しく表示されていること
     }
 }

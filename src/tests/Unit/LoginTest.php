@@ -8,21 +8,28 @@ use App\Models\User;
 
 class LoginTest extends TestCase
 {
-    use RefreshDatabase; // テスト実行ごとにデータベースをリセット
+    use RefreshDatabase;
 
     /**
      * メールアドレスが入力されていない場合、バリデーションメッセージが表示される
      */
     public function test_login_fails_if_email_is_missing()
     {
-        // 1. パスワードのみ入力し、メールアドレスは入力しない
-        $response = $this->post('/login', [
-            'password' => 'password123'
-        ]);
+        // 1. ログインページを開く
+        $this->get(route('login'));
 
-        // 2. バリデーションエラーメッセージが返ってくることを確認
+        // 2. パスワードのみ入力し、メールアドレスは空にする
+        $formData = [
+            'email' => '',
+            'password' => 'password123',
+        ];
+
+        // 3. ログインボタンを押す（POST送信）
+        $response = $this->post(route('login.store'), $formData);
+
+        // 4. エラーメッセージを確認
         $response->assertSessionHasErrors([
-            'email' => 'メールアドレスを入力してください'
+            'email' => 'メールアドレスを入力してください',
         ]);
     }
 
@@ -31,14 +38,17 @@ class LoginTest extends TestCase
      */
     public function test_login_fails_if_password_is_missing()
     {
-        // 1. メールアドレスのみ入力し、パスワードは入力しない
-        $response = $this->post('/login', [
-            'email' => 'test@example.com'
-        ]);
+        $this->get(route('login'));
 
-        // 2. バリデーションエラーメッセージが返ってくることを確認
+        $formData = [
+            'email' => 'test@example.com',
+            'password' => '',
+        ];
+
+        $response = $this->post(route('login.store'), $formData);
+
         $response->assertSessionHasErrors([
-            'password' => 'パスワードを入力してください'
+            'password' => 'パスワードを入力してください',
         ]);
     }
 
@@ -47,15 +57,17 @@ class LoginTest extends TestCase
      */
     public function test_login_fails_if_credentials_are_wrong()
     {
-        // 1. 存在しないメールアドレスとパスワードを入力
-        $response = $this->post('/login', [
-            'email' => 'wrong@example.com',
-            'password' => 'wrongpassword'
-        ]);
+        $this->get(route('login'));
 
-        // 2. 「ログイン情報が登録されていません」のメッセージが表示されることを確認
+        $formData = [
+            'email' => 'wrong@example.com',
+            'password' => 'wrongpassword',
+        ];
+
+        $response = $this->post(route('login.store'), $formData);
+
         $response->assertSessionHasErrors([
-            'email' => 'ログイン情報が登録されていません'
+            'email' => 'ログイン情報が登録されていません',
         ]);
     }
 
@@ -64,22 +76,28 @@ class LoginTest extends TestCase
      */
     public function test_user_can_login_with_correct_credentials()
     {
-        // 1. 事前にデータベースにユーザーを作成
+        // 1. ユーザーを事前に作成
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => bcrypt('password123')
+            'password' => bcrypt('password123'),
         ]);
 
-        // 2. 正しい情報でログインを試みる
-        $response = $this->post('/login', [
+        // 2. ログインページを開く
+        $this->get(route('login'));
+
+        // 3. 正しい情報を入力
+        $formData = [
             'email' => 'test@example.com',
-            'password' => 'password123'
-        ]);
+            'password' => 'password123',
+        ];
 
-        // 3. ログイン成功後にトップページにリダイレクトすることを確認
+        // 4. ログインボタンを押す
+        $response = $this->post(route('login.store'), $formData);
+
+        // 5. トップページにリダイレクトされることを確認
         $response->assertRedirect('/');
 
-        // 4. ユーザーがログイン状態であることを確認
+        // 6. ユーザーが認証されていることを確認
         $this->assertAuthenticatedAs($user);
     }
 }
