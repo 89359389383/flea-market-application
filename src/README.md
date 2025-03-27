@@ -30,6 +30,10 @@
 ## 機能補足（商品購入機能）
 
 -   購入機能について基本要件と応用要件を両立させるため、商品購入ページにてコンビニ払いを選択して購入するとそのまま Sold 処理が実行され、カード払いを選択して購入すると stripe の決済画面に移動する
+-   stripe の決済画面に移動できるようにするため.env ファイルの
+    STRIPE_PUBLIC=your-public-api-key-here
+    STRIPE_SECRET_KEY=your-secret-api-key-here
+    に Stripe のダッシュボードから API キーを取得して記述する
 
 ## URL
 
