@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,19 +17,19 @@ class ItemListTest extends TestCase
      */
     public function test_all_items_are_displayed()
     {
-        // ✅ 1. まずユーザーを作成
+        // 1. まずユーザーを作成
         $user = User::factory()->create();
 
-        // ✅ 2. 作成したユーザーを紐づけて商品を3つ作成
+        // 2. 作成したユーザーを紐づけて商品を3つ作成
         Item::factory()->count(3)->create(['user_id' => $user->id]);
 
-        // ✅ 3. 商品一覧ページを開く（APIを叩く）
+        // 3. 商品一覧ページを開く（APIを叩く）
         $response = $this->get('/');
 
-        // ✅ 4. ステータスコード 200（成功）が返ることを確認
+        // 4. ステータスコード 200（成功）が返ることを確認
         $response->assertStatus(200);
 
-        // ✅ 5. データベースに登録されている3つの商品が全て表示されているか確認
+        // 5. データベースに登録されている3つの商品が全て表示されているか確認
         $items = Item::all();
         foreach ($items as $item) {
             $response->assertSee($item->name);

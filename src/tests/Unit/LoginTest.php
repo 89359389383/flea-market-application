@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -11,7 +11,7 @@ class LoginTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * メールアドレスが入力されていない場合、バリデーションメッセージが表示される
+     * ✅ 1. メールアドレスが入力されていない場合、バリデーションメッセージが表示される
      */
     public function test_login_fails_if_email_is_missing()
     {
@@ -34,45 +34,53 @@ class LoginTest extends TestCase
     }
 
     /**
-     * パスワードが入力されていない場合、バリデーションメッセージが表示される
+     * ✅ 2. パスワードが入力されていない場合、バリデーションメッセージが表示される
      */
     public function test_login_fails_if_password_is_missing()
     {
+        // 1. ログインページを開く
         $this->get(route('login'));
 
+        // 2. メールアドレスのみ入力し、パスワードは空にする
         $formData = [
             'email' => 'test@example.com',
             'password' => '',
         ];
 
+        // 3. ログインボタンを押す（POST送信）
         $response = $this->post(route('login.store'), $formData);
 
+        // 4. エラーメッセージを確認
         $response->assertSessionHasErrors([
             'password' => 'パスワードを入力してください',
         ]);
     }
 
     /**
-     * 入力情報が間違っている場合、バリデーションメッセージが表示される
+     * ✅ 3. 入力情報が間違っている場合、バリデーションメッセージが表示される
      */
     public function test_login_fails_if_credentials_are_wrong()
     {
+        // 1. ログインページを開く
         $this->get(route('login'));
 
+        // 2. 存在しないメールアドレスとパスワードを入力
         $formData = [
             'email' => 'wrong@example.com',
             'password' => 'wrongpassword',
         ];
 
+        // 3. ログインボタンを押す（POST送信）
         $response = $this->post(route('login.store'), $formData);
 
+        // 4. エラーメッセージを確認
         $response->assertSessionHasErrors([
             'email' => 'ログイン情報が登録されていません',
         ]);
     }
 
     /**
-     * 正しい情報が入力された場合、ログイン処理が実行される
+     * ✅ 4. 正しい情報が入力された場合、ログイン処理が実行される
      */
     public function test_user_can_login_with_correct_credentials()
     {
@@ -91,7 +99,7 @@ class LoginTest extends TestCase
             'password' => 'password123',
         ];
 
-        // 4. ログインボタンを押す
+        // 4. ログインボタンを押す（POST送信）
         $response = $this->post(route('login.store'), $formData);
 
         // 5. トップページにリダイレクトされることを確認

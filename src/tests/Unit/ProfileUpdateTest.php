@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -12,32 +12,33 @@ class ProfileUpdateTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * プロフィール編集画面の初期値が正しく表示されることを確認する
+     * ✅ 1. プロフィール編集画面の初期値が正しく表示されることを確認するテスト
      */
     public function test_profile_page_displays_initial_values_correctly()
     {
-        // ストレージのモック
+        // 1. ストレージのモックを設定
         Storage::fake('public');
 
-        // プロフィール画像のパスを仮定（storage/app/public/profile_images に保存される想定）
+        // 2. プロフィール画像のパスを設定
         $profileImagePath = 'profile_images/test_profile.jpg';
 
-        // ユーザー作成（profile_image パスを保存）
+        // 3. ユーザーを作成（プロフィール画像、郵便番号、住所を設定）
         $user = User::factory()->create([
             'profile_image' => $profileImagePath,
             'postal_code' => '123-4567',
             'address' => '東京都新宿区',
         ]);
 
-        // 認証状態でアクセス
+        // 4. 作成したユーザーでログインする
         $this->actingAs($user);
 
-        // プロフィール編集ページにアクセス
+        // 5. プロフィール編集ページにアクセス
         $response = $this->get('/mypage/profile');
 
-        // HTML内に <img src="storage/..."> があるかを確認
+        // 6. 期待される画像タグを設定
         $expectedImgTag = '<img id="image-preview" src="' . asset('storage/' . $profileImagePath) . '" alt="プロフィール画像" class="profile-preview">';
 
+        // 7. レスポンスの検証
         $response->assertStatus(200)
             ->assertSee($user->name)
             ->assertSee($user->postal_code)

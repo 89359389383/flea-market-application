@@ -1,69 +1,70 @@
 <?php
 
-use Illuminate\Support\Facades\Log;
+namespace Tests\Unit;
+
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Item;
-use App\Models\Purchase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AddressTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * ✅ 1. 登録した住所が商品購入画面に正しく反映されるか確認するテスト
+     */
     public function test_registered_address_is_reflected_on_purchase_page()
     {
-        Log::info('テスト開始: 登録した住所が商品購入画面に正しく反映されるか');
-
-        // ユーザーと商品を作成
+        // 1. ユーザーと商品を作成
         $user = User::factory()->create()->first();
         $item = Item::factory()->create();
 
-        // ログイン状態にする
+        // 2. ログイン状態にする
         $this->actingAs($user);
 
-        // 送付先住所変更画面（GET）
+        // 3. 送付先住所変更画面にアクセス
         $this->get(route('address.edit', ['item_id' => $item->id]));
 
-        // 送付先住所登録処理（POST）
+        // 4. 送付先住所を登録
         $response = $this->post(route('address.update', ['item_id' => $item->id]), [
             'postal_code' => '123-4567',
             'address' => '東京都新宿区テスト町1-2-3',
             'building' => 'テストビル101',
         ]);
 
-        // 登録後のリダイレクト先が正しいか確認（購入画面へ）
+        // 5. 登録後のリダイレクト先が正しいか確認
         $response->assertRedirect(route('purchase.show', ['item_id' => $item->id]));
 
-        // 最新のユーザー情報を取得（DBの状態を確認）
+        // 6. データベースに住所が正しく保存されているか確認
         $user->refresh();
         $this->assertEquals('123-4567', $user->postal_code);
 
-        // 商品購入画面にアクセス
+        // 7. 商品購入画面にアクセス
         $response = $this->get(route('purchase.show', ['item_id' => $item->id]));
 
-        // 画面に住所が反映されているか確認
+        // 8. 画面に住所が反映されているか確認
         $response->assertSee('123-4567');
         $response->assertSee('東京都新宿区テスト町1-2-3');
         $response->assertSee('テストビル101');
-
-        Log::info('テスト終了: 登録した住所が商品購入画面に正しく反映されるか');
     }
 
+    /**
+     * ✅ 2. 購入した商品に送付先住所が正しく紐づいて登録されるか確認するテスト
+     */
     public function test_purchased_item_has_correct_address()
     {
-        Log::info('テスト開始: 購入した商品に送付先住所が正しく紐づいて登録されるか');
-
-        // ユーザーと商品を作成
+        // 1. ユーザーと商品を作成
         $user = User::factory()->create()->first();
         $item = Item::factory()->create();
 
+        // 2. ログイン状態にする
         $this->actingAs($user);
 
-        // 住所変更画面にアクセス（GET）
+        // 3. 住所変更画面にアクセス
         $this->get(route('address.edit', ['item_id' => $item->id]));
 
-        // 住所登録処理（POST）
+        // 4. 住所を登録
         $response = $this->post(route('address.update', ['item_id' => $item->id]), [
             'postal_code' => '987-6543',
             'address' => '大阪府大阪市テスト区4-5-6',
@@ -71,15 +72,10 @@ class AddressTest extends TestCase
         ]);
         $response->assertRedirect(route('purchase.show', ['item_id' => $item->id]));
 
-        // 最新ユーザー情報を取得してログ出力
+        // 5. 最新ユーザー情報を取得
         $user->refresh();
-        Log::info('住所登録完了', [
-            'postal_code' => $user->postal_code,
-            'address' => $user->address,
-            'building' => $user->building,
-        ]);
 
-        // 購入処理実行（POST）
+        // 6. 購入処理を実行
         $response = $this->post(route('purchase.store', ['item_id' => $item->id]), [
             'postal_code' => $user->postal_code,
             'address' => $user->address,
@@ -87,7 +83,7 @@ class AddressTest extends TestCase
             'payment_method' => 'コンビニ払い',
         ]);
 
-        // 購入データがデータベースに存在することを確認
+        // 7. 購入データがデータベースに正しく保存されているか確認
         $this->assertDatabaseHas('purchases', [
             'user_id' => $user->id,
             'item_id' => $item->id,
@@ -95,7 +91,5 @@ class AddressTest extends TestCase
             'address' => '大阪府大阪市テスト区4-5-6',
             'building' => 'テストマンション202',
         ]);
-
-        Log::info('テスト終了: 購入した商品に送付先住所が正しく紐づいて登録されていることを確認');
     }
 }
