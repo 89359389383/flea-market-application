@@ -6,10 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\Category;
 use App\Models\Comment;
-use App\Models\User;
 use App\Http\Requests\ExhibitionRequest;
 use App\Http\Requests\CommentRequest;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Like;
 
@@ -22,33 +20,45 @@ class ItemController extends Controller
      */
     public function index(Request $request)
     {
+        // タブパラメータを取得（デフォルトは'recommend'）
         $tab = $request->query('tab', 'recommend');
+        // 現在ログインしているユーザーを取得
         $user = Auth::user();
-        $items = collect(); // 初期化
+        // 商品コレクションを初期化
+        $items = collect();
 
         if ($tab === 'mylist') {
-            // 認証チェック
+            // マイリスト表示の場合
+            // 未ログインユーザーはログインページにリダイレクト
             if (!$user) {
                 return redirect()->route('login')->with('error', 'マイリストを見るにはログインが必要です。');
             }
 
+            // ユーザーがいいねした商品のIDを取得
             $likedItemIds = $user->likes()->pluck('item_id');
+            // いいねした商品のクエリを構築
             $query = Item::whereIn('id', $likedItemIds)->with('user');
 
+            // 検索キーワードがある場合は検索条件を追加
             $searchQuery = $request->query('name', '');
             if (!empty($searchQuery)) {
                 $query->where('name', 'like', "%{$searchQuery}%");
             }
 
+            // クエリを実行して商品を取得
             $items = $query->get();
         } else {
+            // 通常の商品一覧表示の場合
             $query = Item::with('user');
+            // ログインユーザーの場合は自分の商品を除外
             if ($user) {
                 $query->where('user_id', '!=', $user->id);
             }
+            // クエリを実行して商品を取得
             $items = $query->get();
         }
 
+        // ビューにデータを渡して表示
         return view('items.index', [
             'items' => $items,
             'tab' => $tab,
@@ -56,23 +66,30 @@ class ItemController extends Controller
         ]);
     }
 
+    /**
+     * 商品を検索するメソッド
+     * URL: /search
+     * メソッド: GET
+     */
     public function search(Request $request)
     {
-        // ユーザーが入力した商品名を取得
+        // 検索キーワードを取得
         $name = $request->input('name');
-
-        // タブのパラメータを取得（デフォルトは "recommend"）
+        // タブパラメータを取得（デフォルトは'recommend'）
         $tab = $request->query('tab', 'recommend');
 
-        // 商品データを扱うためのクエリを準備
+        // 商品クエリを構築
         $query = Item::with('user');
 
+        // 検索キーワードがある場合は検索条件を追加
         if (!empty($name)) {
-            $query->where('name', 'like', "%$name%"); // 部分一致検索
+            $query->where('name', 'like', "%$name%");
         }
 
+        // クエリを実行して商品を取得
         $items = $query->get();
 
+        // ビューにデータを渡して表示
         return view('items.index', ['items' => $items, 'name' => $name, 'tab' => $tab]);
     }
 
@@ -83,31 +100,36 @@ class ItemController extends Controller
      */
     public function mylist(Request $request)
     {
+        // 現在ログインしているユーザーを取得
         $user = Auth::user();
 
+        // 未ログインユーザーはログインページにリダイレクト
         if (!$user) {
             return redirect()->route('login')->with('error', 'マイリストを見るにはログインが必要です。');
         }
 
-        // ⭐️【修正】検索キーワードを取得し、マイリストの検索に適用
+        // 検索キーワードを取得
         $searchQuery = $request->query('name', '');
 
-        // いいねした商品のみ取得
+        // ユーザーがいいねした商品のIDを取得
         $likedItemIds = $user->likes()->pluck('item_id');
 
+        // いいねした商品のクエリを構築
         $query = Item::whereIn('id', $likedItemIds)->with('user');
 
-        // ⭐️【追加】検索キーワードがある場合に検索条件を適用
+        // 検索キーワードがある場合は検索条件を追加
         if (!empty($searchQuery)) {
             $query->where('name', 'like', "%{$searchQuery}%");
         }
 
+        // クエリを実行して商品を取得
         $items = $query->get();
 
+        // ビューにデータを渡して表示
         return view('items.index', [
             'items' => $items,
             'tab' => 'mylist',
-            'searchQuery' => $searchQuery, // ⭐️【追加】検索ワードをビューに渡す
+            'searchQuery' => $searchQuery,
         ]);
     }
 
@@ -120,12 +142,6 @@ class ItemController extends Controller
     {
         // 商品データを取得（ユーザー、カテゴリ、いいね、コメント含む）
         $item = Item::with(['user', 'categories', 'likes', 'comments.user'])->findOrFail($id);
-
-        // カテゴリー情報をログに記録
-        Log::info('商品詳細ページ表示', [
-            'item_id' => $item->id,
-            'categories' => $item->categories // カテゴリー情報をログに追加
-        ]);
 
         return view('items.show', compact('item'));
     }
@@ -149,26 +165,16 @@ class ItemController extends Controller
      * URL: /sell
      * メソッド: POST (認証必須)
      */
-
     public function store(ExhibitionRequest $request)
     {
-        // リクエストデータをログに記録
-        Log::info('商品出品リクエストを受信', [
-            'user_id' => auth()->id(),
-            'request_data' => $request->all()
-        ]);
-
         // 画像のアップロード処理
         $imagePath = null;
         if ($request->hasFile('image')) {
             try {
                 $imagePath = $request->file('image')->store('items', 'public');
-                Log::info('画像アップロード成功', ['image_path' => $imagePath]);
             } catch (\Exception $e) {
-                Log::error('画像アップロードエラー', ['error' => $e->getMessage()]);
+                // エラー処理
             }
-        } else {
-            Log::warning('画像未選択のため、nullで登録');
         }
 
         // 商品データをデータベースに保存
@@ -184,11 +190,8 @@ class ItemController extends Controller
                 'image' => 'items/' . basename($imagePath),
             ]);
 
-            Log::info('商品データ保存成功', ['item_id' => $item->id]);
-
-            // 🔽 カテゴリーを保存する処理（修正後）
-            $categories = $request->input('categories', []); // 選択したカテゴリを取得
-            Log::info('選択したカテゴリ（取得直後）', ['categories' => $categories]);
+            // カテゴリーを保存する処理
+            $categories = $request->input('categories', []);
 
             if (!empty($categories)) {
                 // `$categories` が文字列の場合は explode() で配列に変換
@@ -203,18 +206,13 @@ class ItemController extends Controller
 
                 // 各カテゴリIDを整数型に変換
                 $categories = array_map('intval', $categories);
-                Log::info('整数に変換したカテゴリ', ['categories' => $categories]);
 
                 // カテゴリを保存
                 $item->categories()->attach($categories);
-                Log::info('カテゴリを保存しました', ['item_id' => $item->id, 'categories' => $categories]);
-            } else {
-                Log::warning('カテゴリが選択されていません');
             }
 
             return redirect('/')->with('success', '商品を出品しました。');
         } catch (\Exception $e) {
-            Log::error('商品データ保存エラー', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', '商品登録中にエラーが発生しました。');
         }
     }

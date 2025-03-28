@@ -4,10 +4,8 @@
 namespace App\Http\Controllers;
 
 // 必要なクラスをインポートします。
-// Requestクラスは、ユーザーのリクエストデータを取得するために使います。
 // Addressモデルは、住所データを操作するために使用します。
 use Illuminate\Http\Request;
-use App\Models\Address;
 use App\Models\User;
 use App\Http\Requests\AddressRequest;
 

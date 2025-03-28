@@ -1,16 +1,11 @@
 <?php
 
-// ファイルの場所を指定するための名前空間を宣言します
 namespace App\Http\Controllers;
 
-// RequestクラスとUserモデルを使用できるようにします
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
-use Illuminate\Support\Facades\Auth;  // 認証処理を行うために使用します
-use Illuminate\Support\Facades\Hash;  // パスワードのハッシュ化に使用します
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -21,7 +16,6 @@ class AuthController extends Controller
      */
     public function showRegisterForm()
     {
-        // ビュー(auth/register.blade.php)を表示します
         return view('auth.register');
     }
 
@@ -32,7 +26,7 @@ class AuthController extends Controller
      */
     public function store(RegisterRequest $request)
     {
-        // ユーザーを作成（ただし、ログインはさせない）
+        // ユーザーを作成
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -40,21 +34,10 @@ class AuthController extends Controller
         ]);
 
         // ユーザーを自動ログイン
-        Auth::login($user);  // 追加: ユーザーをログイン状態にする
-
-        // ログ出力: ユーザー作成完了
-        Log::info('User created and logged in successfully', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-        ]);
+        Auth::login($user);
 
         // 認証メールを送信
         $user->sendEmailVerificationNotification();
-
-        // ログ出力: メール送信
-        Log::info('Verification email sent to user', [
-            'email' => $user->email,
-        ]);
 
         // メール認証ページにリダイレクト
         return redirect()->route('verification.notice');
@@ -78,7 +61,6 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        // フォームから送信されたメールアドレスとパスワードを取得して配列にします
         $credentials = $request->only('email', 'password');
 
         // 認証を試みます (認証に成功すれば true を返します)
@@ -98,10 +80,8 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        // ユーザーをログアウトさせます
         Auth::logout();
 
-        // トップページにリダイレクトし、メッセージを表示します
         return redirect('/')->with('success', 'ログアウトしました。');
     }
 }
