@@ -14,7 +14,7 @@
     <header class="header">
         <div class="header-left">
             <div class="logo-image">
-                <img src="{{ asset('images/6rd4Hg4jJQHeEIFqKB7a1cJnsgyf0Jwy8HCkvFzr.svg') }}" alt="COACHTECH Logo">
+                <img src="{{ asset('storage/6rd4Hg4jJQHeEIFqKB7a1cJnsgyf0Jwy8HCkvFzr.svg') }}" alt="COACHTECH Logo">
             </div>
         </div>
 
