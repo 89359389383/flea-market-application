@@ -105,3 +105,10 @@ Route::post('/email/verification-notification', function (Request $request) {
 
     return back()->with('resent', true);
 })->middleware(['auth'])->name('verification.resend');
+
+// Stripe決済のリダイレクト後処理（★ここから追加）
+Route::get('/purchase/complete/{item_id}', [PurchaseController::class, 'complete'])->middleware('auth')->name('purchase.complete'); // ★追加
+
+Route::get('/cancel', function () {
+    return redirect()->route('items.index')->with('error', '決済がキャンセルされました');
+})->name('purchase.cancel'); // ★追加

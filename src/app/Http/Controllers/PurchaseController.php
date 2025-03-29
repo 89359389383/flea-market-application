@@ -110,7 +110,7 @@ class PurchaseController extends Controller
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $YOUR_DOMAIN . '/success',
+                'success_url' => $YOUR_DOMAIN . '/purchase/complete/' . $item_id, // ← ここを変更
                 'cancel_url' => $YOUR_DOMAIN . '/cancel',
             ]);
 
@@ -118,6 +118,35 @@ class PurchaseController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('purchase.show', ['item_id' => $item_id])
                 ->with('error', '決済画面への遷移に失敗しました。');
+        }
+    }
+
+    // Stripe支払い後に呼び出される処理（storeのロジック再利用）★追加
+    public function complete($item_id)
+    {
+        try {
+            $item = Item::findOrFail($item_id);
+
+            if ($item->sold) {
+                return redirect()->route('items.show', $item_id)->with('error', 'この商品はすでに売り切れです。');
+            }
+
+            $user = auth()->user();
+
+            Purchase::create([
+                'user_id' => $user->id,
+                'item_id' => $item->id,
+                'postal_code' => $user->postal_code,
+                'address' => $user->address,
+                'building' => $user->building,
+                'payment_method' => 'カード払い', // ★固定
+            ]);
+
+            $item->update(['sold' => true]);
+
+            return redirect()->route('items.index')->with('success', '購入が完了しました');
+        } catch (\Exception $e) {
+            return redirect()->route('items.show', $item_id)->with('error', '購入処理に失敗しました');
         }
     }
 }
