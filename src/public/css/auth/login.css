@@ -65,8 +65,6 @@ input[type="password"] {
     cursor: pointer;
     margin-top: 16px;
     text-decoration: none;
-
-    /* ✅ Flexbox を追加して中央寄せ */
     display: flex;
     justify-content: center;
     align-items: center;

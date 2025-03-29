@@ -10,7 +10,7 @@
 
 <nav class="nav-tabs">
     <a href="{{ route('items.index') }}" class="nav-tab move-right {{ $tab == 'recommend' ? 'active' : '' }}">おすすめ</a>
-    <!-- ⭐️【修正】マイリストに遷移する際に検索ワードを維持 -->
+    <!-- マイリストに遷移する際に検索ワードを維持 -->
     <a href="{{ route('items.index', ['tab' => 'mylist', 'name' => request('name')]) }}" class="nav-tab {{ $tab == 'mylist' ? 'active' : '' }}">マイリスト</a>
 </nav>
 

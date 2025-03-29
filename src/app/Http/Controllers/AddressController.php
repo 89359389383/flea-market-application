@@ -1,11 +1,7 @@
 <?php
 
-// 名前空間を定義します。これにより、このファイルがLaravelのコントローラーフォルダにあることを示します。
 namespace App\Http\Controllers;
 
-// 必要なクラスをインポートします。
-// Addressモデルは、住所データを操作するために使用します。
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Requests\AddressRequest;
 

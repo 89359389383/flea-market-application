@@ -15,9 +15,7 @@
 .product-image {
     position: relative;
     width: 300px;
-    /* 幅300px */
     height: 400px;
-    /* 高さ400px */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -110,9 +108,7 @@
 /* 売り切れた商品用ボタン */
 .sold-out-button {
     background-color: #dcdcdc;
-    /* 灰色の背景 */
     color: #666;
-    /* 文字色を薄く */
     border: none;
     width: 80%;
     padding: 4px 16px;
@@ -367,7 +363,6 @@ textarea {
     .rating-section {
         display: flex;
         justify-content: center;
-            /* 横方向中央 */
         gap: 20px;
         margin-right: 50px;
     }

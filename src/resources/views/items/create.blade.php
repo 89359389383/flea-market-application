@@ -105,7 +105,7 @@
     </form>
 </main>
 
-<!-- 画像プレビュー & カテゴリー選択用スクリプト -->
+<!-- 画像プレビューとカテゴリー選択用のJavaScript -->
 <script>
     document.getElementById('product-image').addEventListener('change', function(event) {
         const file = event.target.files[0];
@@ -134,7 +134,7 @@
             // hidden input にセット
             document.getElementById('selected-categories').value = selectedCategories.join(',');
 
-            // Ensure that if no category is selected, we send an empty string instead of null
+            // カテゴリーが選択されていない場合は空文字列を設定
             if (selectedCategories.length === 0) {
                 document.getElementById('selected-categories').value = ''; // Set to empty string
             }
