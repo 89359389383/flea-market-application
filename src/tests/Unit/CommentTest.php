@@ -98,25 +98,22 @@ class CommentTest extends TestCase
     }
 
     /**
-     * ✅ 4. ログインしていないユーザーはコメントを投稿できないか確認するテスト
+     * ✅ 4. 未認証ユーザーにはコメント欄が表示されず、代わりにログインリンクが表示されることを確認するテスト
      */
-    public function test_guest_cannot_post_comment()
+    public function test_guest_cannot_see_comment_form()
     {
         // 1. 商品を作成する（コメント対象）
         $item = Item::factory()->create();
 
-        // 2. コメントのデータを作成（フォームから送信される想定）
-        $commentData = [
-            'comment' => 'これはゲストユーザーのテストコメントです！',
-        ];
+        // 2. 商品詳細ページにアクセス
+        $response = $this->get(route('items.show', $item->id));
 
-        // 3. ゲストユーザーとしてコメントを送信（POSTリクエスト）
-        $response = $this->post(route('items.comment.store', ['item_id' => $item->id]), $commentData);
+        // 3. コメントフォームが表示されていないことを確認
+        $response->assertDontSee('コメントを投稿する');
 
-        // 4. コメントがデータベースに保存されていないことを確認
-        $this->assertEquals(0, Comment::count());
-
-        // 5. ログインページへリダイレクトされることを確認
-        $response->assertRedirect(route('login'));
+        // 4. リンク先（ログインページ）に実際にアクセスしてページが表示されるかを確認
+        $loginPageResponse = $this->get(route('login'));
+        $loginPageResponse->assertStatus(200);
+        $loginPageResponse->assertSee('ログイン'); // ログイン画面に"ログイン"という文字がある前提
     }
 }

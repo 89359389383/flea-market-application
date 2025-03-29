@@ -105,6 +105,19 @@
     background-color: #ff6b81;
 }
 
+.login-button {
+    background-color: white;
+    color: #ff4757;
+    width: 80%;
+    padding: 4px 16px;
+    border: 2px solid #ff4757;
+    border-radius: 4px;
+    font-size: 22px;
+    cursor: pointer;
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
 /* 売り切れた商品用ボタン */
 .sold-out-button {
     background-color: #dcdcdc;
@@ -368,6 +381,7 @@ textarea {
     }
 
     .purchase-button,
+    .login-button,
     .comment-submit-button {
         display: block;
         width: 100%;
