@@ -23,14 +23,13 @@ class ProfileUpdateTest extends TestCase
         $profileImagePath = 'profile_images/test_profile.jpg';
 
         // 3. ユーザーを作成（プロフィール画像、郵便番号、住所を設定）
-        $user = User::factory()->create([
+        User::factory()->create([
             'profile_image' => $profileImagePath,
             'postal_code' => '123-4567',
             'address' => '東京都新宿区',
         ]);
 
-        // 4. 作成したユーザーでログインする
-        $this->actingAs($user);
+        $user = User::first();
 
         // 5. プロフィール編集ページにアクセス
         $response = $this->get('/mypage/profile');

@@ -19,7 +19,7 @@ class UserController extends Controller
         // 現在ログインしているユーザーの情報を取得します
         $user = auth()->user();
         // URLのクエリパラメータから表示するタブを取得します（デフォルトは'sell'）
-        $tab = $request->query('page', 'sell'); 
+        $tab = $request->query('page', 'sell');
 
         // タブの種類に応じて表示する商品を取得します
         if ($tab === 'buy') {

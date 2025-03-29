@@ -50,7 +50,7 @@ class MyListTest extends TestCase
     public function test_purchased_items_display_sold_label()
     {
         // 1. ユーザーを作成
-        $user = User::factory()->create();
+        $user = User::factory()->create()->first();
 
         // 2. 購入済みの商品を作成
         $purchasedItem = Item::factory()->create(['sold' => true]);
@@ -80,7 +80,7 @@ class MyListTest extends TestCase
     public function test_self_listed_items_are_not_displayed()
     {
         // 1. ユーザーを作成
-        $user = User::factory()->create();
+        $user = User::factory()->create()->first();
 
         // 2. 自分が出品した商品を作成
         $selfItem = Item::factory()->create(['user_id' => $user->id]);

@@ -17,7 +17,7 @@ class PaymentTest extends TestCase
     public function testSelectedPaymentMethodIsImmediatelyReflectedOnPage()
     {
         // ① ダミーユーザーを作成
-        $user = User::factory()->create();
+        $user = User::factory()->create()->first();
 
         // ② 商品を作成
         $item = Item::factory()->create();
