@@ -31,6 +31,9 @@ class ProfileUpdateTest extends TestCase
 
         $user = User::first();
 
+        // 4. ユーザーとしてログイン
+        $this->actingAs($user);
+
         // 5. プロフィール編集ページにアクセス
         $response = $this->get('/mypage/profile');
 

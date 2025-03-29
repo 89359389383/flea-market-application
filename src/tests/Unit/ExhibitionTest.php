@@ -57,7 +57,9 @@ class ExhibitionTest extends TestCase
         ]);
 
         // 8. 画像が正しく保存されたか確認
-        Storage::disk('public')->assertExists('items/' . $image->hashName());
+        /** @var \Illuminate\Support\Facades\Storage|\Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists('items/' . $image->hashName());
 
         // 9. カテゴリの関連付けが行われたか確認（複数カテゴリ）
         $item = Item::where('name', 'テスト商品')->first();
