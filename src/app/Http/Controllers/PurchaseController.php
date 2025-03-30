@@ -121,7 +121,7 @@ class PurchaseController extends Controller
         }
     }
 
-    // Stripe支払い後に呼び出される処理（storeのロジック再利用）★追加
+    // Stripe支払い後に呼び出される処理（storeのロジック再利用）
     public function complete($item_id)
     {
         try {
