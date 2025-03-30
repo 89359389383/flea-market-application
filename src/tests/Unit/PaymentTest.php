@@ -1,59 +1,79 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
 use App\Models\Item;
 
 class PaymentTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
 
     /**
-     * 支払い方法の選択が即時に画面に反映されることをテスト
+     * ✅ 1. 「コンビニ払い」を選択したときに、サイドバーに正しく反映されることを確認するテスト
      */
-    public function testSelectedPaymentMethodIsImmediatelyReflectedOnPage()
+    public function it_displays_convenience_store_payment_in_sidebar()
     {
-        // ① ダミーユーザーを作成
-        $user = User::factory()->create()->first();
-
-        // ② 商品を作成
-        $item = Item::factory()->create();
-
-        // ③ ユーザーがログイン
-        $loginResponse = $this->post(route('login.store'), [
-            'email' => $user->email,
-            'password' => 'password', // UserFactoryのデフォルトと一致させる
+        // 1. ユーザーを作成
+        User::factory()->create([
+            'postal_code' => '987-6543',
+            'address' => '大阪府大阪市',
+            'building' => 'テストビル202',
         ]);
+        $user = User::first();
 
-        // ④ ログイン後、トップページにリダイレクトされることを確認
-        $loginResponse->assertRedirect(route('items.index'));
+        // 2. 商品を作成
+        $item = Item::factory()->create(['price' => 3000]);
 
-        // 🔽《追加》商品詳細ページにアクセス（テストケース①の補足）
-        $itemDetailResponse = $this->actingAs($user)->get(route('items.show', ['item_id' => $item->id]));
-        $itemDetailResponse->assertStatus(200);
-        $itemDetailResponse->assertSee($item->name);
+        // 3. コンビニ払いを選択して購入ページにアクセス
+        $response = $this->actingAs($user)->get(route('purchase.show', [
+            'item_id' => $item->id,
+            'payment_method' => 'コンビニ払い',
+        ]));
 
-        // ⑤ 商品購入ページにアクセス
-        $purchasePageResponse = $this->actingAs($user)->get(route('purchase.show', ['item_id' => $item->id]));
-        $purchasePageResponse->assertStatus(200);
+        // 4. レスポンスが正常であることを確認
+        $response->assertStatus(200);
 
-        // ⑥ 支払い方法が「未選択」で表示されていることを確認
-        $purchasePageResponse->assertSee('選択してください');
+        // 5. HTML全体を取得し、空白・改行を削除して比較用に整形
+        $html = preg_replace('/\s+/', '', $response->getContent());
+        $expected = '<divclass="summary-value"id="selected-payment-method">コンビニ払い</div>';
 
-        // ⑦ 支払い方法を「コンビニ払い」に選択し、変更を即時反映（POSTリクエストはせず）
-        // simulate user selecting the payment method and page updating without JS
-        // このテストでは画面に支払い方法が表示されるかを検証
+        // 6. サイドバー内に「コンビニ払い」が表示されていることを確認
+        $this->assertStringContainsString($expected, $html);
+    }
 
-        // 🔽《再取得》ページを開いた後に「コンビニ払い」を選択して表示されることを確認
-        // 本来 JS で変更されるが、ここではHTMLに "コンビニ払い" の文字列が存在しているかを検証
-        $responseAfterSelection = $this->actingAs($user)->get(route('purchase.show', ['item_id' => $item->id]));
-        $responseAfterSelection->assertSee('コンビニ払い'); // 最初からHTMLに含まれていないならNG
+    /**
+     * ✅ 2. 「カード払い」を選択したときに、サイドバーに正しく反映されることを確認するテスト
+     */
+    public function it_displays_card_payment_in_sidebar()
+    {
+        // 1. ユーザーを作成
+        User::factory()->create([
+            'postal_code' => '987-6543',
+            'address' => '大阪府大阪市',
+            'building' => 'テストビル202',
+        ]);
+        $user = User::first();
 
-        // 🔽ヒント：本当に動的反映するには Laravel Livewire や re-render 等が必要
-        // → ここでは、HTML上に「コンビニ払い」という選択肢が**選択状態で**表示されていることを検証する場合は JavaScript のユニットテスト or ブラウザテストが適切
-        // ここでは最低限、「HTMLに文字列が含まれていること」をテストするだけになります
+        // 2. 商品を作成
+        $item = Item::factory()->create(['price' => 10000]);
+
+        // 3. カード払いを選択して購入ページにアクセス
+        $response = $this->actingAs($user)->get(route('purchase.show', [
+            'item_id' => $item->id,
+            'payment_method' => 'カード払い',
+        ]));
+
+        // 4. レスポンスが正常であることを確認
+        $response->assertStatus(200);
+
+        // 5. HTML全体を取得し、空白・改行を削除して比較用に整形
+        $html = preg_replace('/\s+/', '', $response->getContent());
+        $expected = '<divclass="summary-value"id="selected-payment-method">カード払い</div>';
+
+        // 6. サイドバー内に「カード払い」が表示されていることを確認
+        $this->assertStringContainsString($expected, $html);
     }
 }
