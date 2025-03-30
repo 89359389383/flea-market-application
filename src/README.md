@@ -29,10 +29,10 @@
 
 ## 機能補足（商品購入機能）
 
--   購入機能について基本要件と応用要件を両立させるため、商品購入ページにてコンビニ払いを選択して購入するとそのまま Sold 処理が実行され、カード払いを選択して購入すると stripe の決済画面に移動する
--   stripe の決済画面に移動できるようにするため.env ファイルの
-    STRIPE_PUBLIC=your-public-api-key-here
-    STRIPE_SECRET_KEY=your-secret-api-key-here
+-   購入機能について基本要件と応用要件を両立させるため、商品購入ページにて<br>コンビニ払いを選択して購入する → そのまま Sold 処理が実行される<br>カード払いを選択して購入する →stripe の決済画面に移動する
+-   stripe の決済画面に移動できるようにするため.env ファイルの<br>
+    STRIPE_PUBLIC=your-public-api-key-here<br>
+    STRIPE_SECRET_KEY=your-secret-api-key-here<br>
     に Stripe のダッシュボードから API キーを取得して記述する
 -   stripe 決済画面においてテスト環境で支払いを実行するため仮想の情報を入力して支払うをクリックする<br>
     例：カード番号 4242 4242 4242 4242
