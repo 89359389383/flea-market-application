@@ -56,10 +56,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ===================
 
 Route::middleware('auth')->group(function () {
-    // 商品出品、マイリスト表示
     Route::get('/sell', [ItemController::class, 'create'])->name('items.create'); // 出品画面表示
     Route::post('/sell', [ItemController::class, 'store'])->name('items.store'); // 出品処理
-    // Route::get('/mylist', [ItemController::class, 'mylist'])->name('items.mylist'); // マイリスト(いいねした商品)
 
     // いいね機能
     Route::post('/items/{id}/toggle-like', [ItemController::class, 'toggleLike'])
@@ -72,7 +70,7 @@ Route::middleware('auth')->group(function () {
     // 購入、住所変更機能
     Route::get('/purchase/{item_id}', [PurchaseController::class, 'show'])->name('purchase.show'); // 購入画面表示
     Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store'); // 購入処理
-    Route::get('/stripe/checkout/{item_id}', [PurchaseController::class, 'checkout'])->name('stripe.checkout');
+    Route::get('/stripe/checkout/{item_id}', [PurchaseController::class, 'checkout'])->name('stripe.checkout'); // stripe決済画面
     Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit'); // 住所変更画面表示
     Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update'); // 住所変更処理
 
@@ -108,7 +106,3 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 // Stripe決済のリダイレクト後処理
 Route::get('/purchase/complete/{item_id}', [PurchaseController::class, 'complete'])->middleware('auth')->name('purchase.complete');
-
-Route::get('/cancel', function () {
-    return redirect()->route('items.index')->with('error', '決済がキャンセルされました');
-})->name('purchase.cancel');
