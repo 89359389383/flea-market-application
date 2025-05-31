@@ -11,7 +11,7 @@ class LogoutTest extends TestCase
     use RefreshDatabase; // テストが終わるたびにデータベースをリセットする
 
     /**
-     * ✅ 1. ログアウト後にログインページへリダイレクトされることを確認するテスト
+     * ✅ 1. ログアウト後にトップページへリダイレクトされることを確認するテスト
      */
     public function test_user_can_logout_successfully()
     {

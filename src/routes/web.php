@@ -87,21 +87,38 @@ Route::get('/email/verify', function () {
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
-// メール認証を完了したら、自動ログインしプロフィール設定へ
+// 「/email/verify/ユーザーID/ハッシュ値」にアクセスされたときの処理
+// このURLは、ユーザーがメールで受け取った認証リンクから来るものです
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $user = $request->user();
-    $request->fulfill(); // 認証を完了
 
-    Auth::login($user); // 認証完了したら自動ログイン
+    // メール認証リンクをクリックしたユーザーの情報を取得
+    $user = $request->user(); // 今ログインしようとしているユーザーの情報を取得する
 
-    return redirect('/mypage/profile'); // プロフィール設定画面へリダイレクト
+    // メールアドレスが本物であることを確認して「認証完了」にする
+    $request->fulfill(); // fulfill()は「メール認証済み」にする特別な関数
+
+    // ユーザーを自動的にログイン状態にする（もう一度ログインしなくていい）
+    Auth::login($user); // 認証されたユーザーを自動的にログイン状態にする
+
+    // ログインしたら「プロフィール設定」ページへ案内（リダイレクト）
+    return redirect('/mypage/profile'); // ユーザーが情報を入力するページへ移動
+
+    // ここでは、「auth」と「signed」という2つの特別なルール（ミドルウェア）を使って安全性を保っています
+    // auth → ユーザーが一度ログインしていることを確認（未認証の人はアクセスできない）
+    // signed → メールのリンクが書き換えられていないことを確認（セキュリティ対策）
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
-// メール認証の再送信
+// 「メール認証の再送信」のためのルート（URLの入り口）を定義しています
 Route::post('/email/verification-notification', function (Request $request) {
+
+    // 現在ログインしているユーザーに対して
+    // メール認証リンクをもう一度送信します
     $request->user()->sendEmailVerificationNotification();
 
+    // 前のページに戻って、「認証メールを再送信しました」と知らせるメッセージを持たせて戻ります
     return back()->with('resent', true);
+
+    // このルートを使うには、「ログインしている」ことが必要です（authミドルウェア）
 })->middleware(['auth'])->name('verification.resend');
 
 // Stripe決済のリダイレクト後処理

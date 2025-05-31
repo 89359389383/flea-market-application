@@ -18,13 +18,29 @@ class UserController extends Controller
     {
         // 現在ログインしているユーザーの情報を取得します
         $user = auth()->user();
-        // URLのクエリパラメータから表示するタブを取得します（デフォルトは'sell'）
+        // クエリパラメータ「page」の値を取得し、変数$tabに代入します。
+        // 例：URLが /mypage?page=buy の場合、$tabには 'buy' が代入されます。
+        // クエリパラメータが指定されていない場合（例：/mypage）、デフォルト値の 'sell' が使われます。
+        // つまり「購入商品（buy）」か「出品商品（sell）」のどちらを表示するかを判断するための値です。
         $tab = $request->query('page', 'sell');
 
         // タブの種類に応じて表示する商品を取得します
         if ($tab === 'buy') {
-            // 購入した商品を取得します
-            $items = $user->purchases()->with('item')->get()->map(fn($purchase) => $purchase->item);
+            $items = $user
+                // ユーザーの購入履歴（Purchaseモデル）を取得するためのリレーション。
+                // Userモデルに定義されている purchases() メソッド（hasManyなど）を呼び出す。
+                ->purchases()
+
+                // 各購入履歴（Purchase）に紐づいている商品（Itemモデル）をあらかじめ読み込む（Eager Loading）。
+                // これにより、あとで $purchase->item とアクセスする際にDBを再度叩かずに済み、N+1問題を回避できる。
+                ->with('item')
+
+                // 実際に上記までのクエリビルダーを実行して、購入履歴（Purchaseのコレクション）をデータベースから取得する。
+                ->get()
+
+                // 取得した各購入履歴（Purchase）から、対応する商品情報（Item）だけを抽出する。
+                // 最終的に、Itemモデルのコレクションが得られる（購入履歴の中身の商品のみを集めた結果）。
+                ->map(fn($purchase) => $purchase->item);
         } else {
             // 出品した商品を取得します
             $items = Item::where('user_id', $user->id)->get();
@@ -89,9 +105,13 @@ class UserController extends Controller
 
         // ユーザーが購入した商品のみ取得（購入履歴の item データ）
         try {
-            $purchasedItems = $user->purchases()->with('item')->get()->map(function ($purchase) {
-                return $purchase->item;
-            });
+            // ログイン中のユーザーが購入した商品の一覧を取得する処理
+            $purchasedItems = $user->purchases()               // ユーザーが購入した「購入履歴」の一覧を取得
+                ->with('item')                                 // 各購入履歴に関連する「商品情報」も一緒に取得しておく
+                ->get()                                        // 上記の条件で実際にデータベースから購入履歴をまとめて取得
+                ->map(function ($purchase) {                   // 取得した購入履歴を1件ずつ処理する（map関数で変換）
+                    return $purchase->item;                    // 各購入履歴から「商品情報（item）」だけを取り出して返す
+                });                                            // 最終的に「商品情報だけの一覧」として$purchasedItemsに代入
         } catch (\Exception $e) {
             return redirect()->route('user.show')->with('error', '購入履歴の取得中にエラーが発生しました。');
         }

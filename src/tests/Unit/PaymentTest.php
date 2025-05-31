@@ -36,11 +36,18 @@ class PaymentTest extends TestCase
         // 4. レスポンスが正常であることを確認
         $response->assertStatus(200);
 
-        // 5. HTML全体を取得し、空白・改行を削除して比較用に整形
+        // 5. HTML全体を取得して、空白や改行をすべて削除（比較しやすくするため）
+        // たとえば <div class="abc"> → <divclass="abc"> に変わる
+        // HTMLは人間が見やすいように空白が入ってるけど、それだと文字を正確に比べづらいので、まずは全部くっつける！
         $html = preg_replace('/\s+/', '', $response->getContent());
+
+        // 6. 比較用の「正解の文字列」を用意
+        // 「サイドバーにコンビニ払いが表示されているはずだよね？」という見本
+        // 上のHTMLと同じように空白をなくした形で書いてある
         $expected = '<divclass="summary-value"id="selected-payment-method">コンビニ払い</div>';
 
-        // 6. サイドバー内に「コンビニ払い」が表示されていることを確認
+        // 7. 実際のHTMLの中に、上の「正解の文字列」がちゃんと含まれているかチェック
+        // もし見つからなければ「バグかも」としてテストが失敗する
         $this->assertStringContainsString($expected, $html);
     }
 

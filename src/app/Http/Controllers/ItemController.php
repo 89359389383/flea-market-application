@@ -24,37 +24,45 @@ class ItemController extends Controller
         $tab = $request->query('tab', 'recommend');
         // 現在ログインしているユーザーを取得
         $user = Auth::user();
-        // 商品コレクションを初期化
+        // 最初に、あとで商品データを入れるための「空の箱」を用意しておく
         $items = collect();
 
         if ($tab === 'mylist') {
-            // マイリスト表示の場合
-            // 未ログインユーザーはログインページにリダイレクト
+            // 「マイリスト」タブが選ばれている場合の処理
+
+            // ユーザーがログインしていないなら、ログインページに移動させる
             if (!$user) {
                 return redirect()->route('login')->with('error', 'マイリストを見るにはログインが必要です。');
             }
 
-            // ユーザーがいいねした商品のIDを取得
+            // ログイン中のユーザーが「いいね」した商品のID（番号）だけを集める
             $likedItemIds = $user->likes()->pluck('item_id');
-            // いいねした商品のクエリを構築
+
+            // 「いいね」した商品の中から、該当する商品を探す準備をする
+            // さらに「商品を出した人の情報」も一緒に取り出せるようにする
             $query = Item::whereIn('id', $likedItemIds)->with('user');
 
-            // 検索キーワードがある場合は検索条件を追加
+            // 商品名で検索したいキーワードが送られてきているかチェック
             $searchQuery = $request->query('name', '');
             if (!empty($searchQuery)) {
+                // 検索キーワードがあれば、商品名にそれが含まれているものだけを選ぶようにする
                 $query->where('name', 'like', "%{$searchQuery}%");
             }
 
-            // クエリを実行して商品を取得
+            // 上で作った条件を使って、実際に商品データを取り出す
             $items = $query->get();
         } else {
-            // 通常の商品一覧表示の場合
+            // 「おすすめ」などの通常タブが選ばれているときの処理
+
+            // 商品一覧を取り出す準備（商品を出した人の情報も一緒に取り出す）
             $query = Item::with('user');
-            // ログインユーザーの場合は自分の商品を除外
+
+            // もしログインしているなら、「自分が出品した商品」は一覧から外すようにする
             if ($user) {
                 $query->where('user_id', '!=', $user->id);
             }
-            // クエリを実行して商品を取得
+
+            // 条件に合った商品を取り出す
             $items = $query->get();
         }
 
@@ -168,51 +176,79 @@ class ItemController extends Controller
     public function store(ExhibitionRequest $request)
     {
         // 画像のアップロード処理
-        $imagePath = null;
+        // ----------------------------
+        // 画像のアップロード処理
+        // ----------------------------
+        $imagePath = null; // 画像ファイルの保存場所を入れる変数。最初は空っぽ。
+
+        // フォームから画像が送られてきているかを確認
         if ($request->hasFile('image')) {
             try {
+                // 画像を "storage/app/public/items" フォルダに保存して、そのパスを取得
+                // たとえば "items/123456789_photo.jpg" のようになる
                 $imagePath = $request->file('image')->store('items', 'public');
             } catch (\Exception $e) {
-                // エラー処理
+                // もし保存中に何か問題が起きたら、ここでエラー処理（今は何もしていない）
             }
         }
 
+        // ----------------------------
         // 商品データをデータベースに保存
+        // ----------------------------
         try {
             $item = Item::create([
-                'user_id' => auth()->id(),
-                'name' => $request->input('name'),
-                'description' => $request->input('description'),
-                'brand_name' => $request->input('brand_name'),
-                'condition' => $request->input('condition'),
-                'price' => $request->input('price'),
-                'sold' => false,
-                'image' => 'items/' . basename($imagePath),
+                'user_id' => auth()->id(), // 今ログインしているユーザーのIDを登録
+                'name' => $request->input('name'), // フォームから送られてきた商品名
+                'description' => $request->input('description'), // 商品の説明
+                'brand_name' => $request->input('brand_name'), // ブランド名
+                'condition' => $request->input('condition'), // 商品の状態（例：新品、中古など）
+                'price' => $request->input('price'), // 商品の価格
+                'sold' => false, // 初めて登録するので「売り切れではない」状態で登録
+                'image' => 'items/' . basename($imagePath), // 保存された画像のファイル名だけ取り出してパスに追加
             ]);
 
+            // ----------------------------
             // カテゴリーを保存する処理
+            // ----------------------------
+
+            // フォームから送られてきたカテゴリーデータを取得（何もなければ空の配列に）
             $categories = $request->input('categories', []);
 
             if (!empty($categories)) {
-                // `$categories` が文字列の場合は explode() で配列に変換
+                // -------------------------
+                // パターン①：文字列で送られてきた場合（例："2,3,4"）
+                // explode() でカンマごとに分けて配列に変換（["2", "3", "4"] に）
+                // -------------------------
                 if (is_string($categories)) {
                     $categories = explode(',', $categories);
                 }
 
-                // `$categories` が配列の中にカンマ区切りの文字列を持っている場合（["2,3,4"] みたいな形）
-                if (count($categories) === 1 && is_string($categories[0]) && str_contains($categories[0], ',')) {
-                    $categories = explode(',', $categories[0]);
+                // -------------------------
+                // パターン②：配列にはなっているけど、中にカンマ付きの文字が1個だけ入っている場合（例：["2,3,4"]）
+                // このときも、カンマで分けて配列に直す（["2", "3", "4"] に）
+                // -------------------------
+                if (
+                    count($categories) === 1 &&                  // 配列の要素が1個だけで、
+                    is_string($categories[0]) &&                 // その中身が文字列で、
+                    str_contains($categories[0], ',')            // カンマが含まれているとき
+                ) {
+                    $categories = explode(',', $categories[0]);  // カンマで区切ってバラバラにする
                 }
 
-                // 各カテゴリIDを整数型に変換
+                // -------------------------
+                // 最後に、文字（"2"など）を整数（2）に変換する
+                // データベースに保存するとき、正しく処理されるようにするため
+                // -------------------------
                 $categories = array_map('intval', $categories);
 
-                // カテゴリを保存
+                // 商品とカテゴリの関係を保存（中間テーブルに登録）
                 $item->categories()->attach($categories);
             }
 
+            // 成功したらトップページに戻って「出品しました」と表示
             return redirect('/')->with('success', '商品を出品しました。');
         } catch (\Exception $e) {
+            // もし商品登録中にエラーが起きたら、前のページに戻ってエラーメッセージを表示
             return redirect()->back()->with('error', '商品登録中にエラーが発生しました。');
         }
     }
