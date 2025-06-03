@@ -25,6 +25,9 @@ class CreateUsersTable extends Migration
             $table->string('profile_image', 255)->nullable();
             $table->rememberToken();
             $table->timestamps();
+            // --- 追加: 取引評価の平均値・受けた評価数 ---
+            $table->float('average_score')->nullable()->comment('取引評価の平均値');
+            $table->integer('evaluations_count')->default(0)->comment('受けた評価数');
         });
     }
 

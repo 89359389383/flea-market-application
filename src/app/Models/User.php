@@ -26,6 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'building',
         'profile_image',
+        'average_score',
+        'evaluations_count',
     ];
 
     /**
@@ -65,6 +67,30 @@ class User extends Authenticatable implements MustVerifyEmail
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    // --- 追加: 自分が売り手の取引一覧 ---
+    public function sellingTrades()
+    {
+        return $this->hasMany(Trade::class, 'seller_id');
+    }
+
+    // --- 追加: 自分が買い手の取引一覧 ---
+    public function buyingTrades()
+    {
+        return $this->hasMany(Trade::class, 'buyer_id');
+    }
+
+    // --- 追加: 評価（自分が受けた評価）---
+    public function evaluationsReceived()
+    {
+        return $this->hasMany(Evaluation::class, 'evaluated_id');
+    }
+
+    // --- 追加: 評価（自分が送った評価）---
+    public function evaluationsGiven()
+    {
+        return $this->hasMany(Evaluation::class, 'evaluator_id');
     }
 
     public function sendEmailVerificationNotification()
