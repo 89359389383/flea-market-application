@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Item;
+use App\Models\Trade;
 use App\Http\Requests\ProfileRequest;
 
 class UserController extends Controller
@@ -16,37 +17,49 @@ class UserController extends Controller
      */
     public function show(Request $request)
     {
-        // 現在ログインしているユーザーの情報を取得します
+        // 今ログインしているユーザー情報を取得
         $user = auth()->user();
-        // クエリパラメータ「page」の値を取得し、変数$tabに代入します。
-        // 例：URLが /mypage?page=buy の場合、$tabには 'buy' が代入されます。
-        // クエリパラメータが指定されていない場合（例：/mypage）、デフォルト値の 'sell' が使われます。
-        // つまり「購入商品（buy）」か「出品商品（sell）」のどちらを表示するかを判断するための値です。
+
+        // クエリパラメータ「page」（例: buy, sell, trading）を取得、なければ'sell'
         $tab = $request->query('page', 'sell');
 
-        // タブの種類に応じて表示する商品を取得します
+        // --- 追加: 取引中商品タブ（page=trading）の場合 ---
+        if ($tab === 'trading') { // ← 追加：取引中一覧
+            // 自分が売り手 or 買い手の「進行中（is_completed=false）」取引をすべて取得
+            $trades = Trade::with(['item', 'seller', 'buyer'])
+                ->where('is_completed', false)
+                ->where(function ($query) use ($user) {
+                    // $queryは「この中でさらに条件を追加できる箱」です
+                    // $user を「use」で持ち込んだから使える！
+                    // 売り手 or 買い手どちらかに自分が入っていればOK
+                    $query->where('seller_id', $user->id)
+                        ->orWhere('buyer_id', $user->id);
+                })
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            // ビュー（user/show.blade.php）へ渡す
+            return view('user.show', [
+                'user' => $user,
+                'trades' => $trades, // ← 追加：trades（取引リスト）を渡す
+                'tab' => $tab,
+            ]);
+        }
+        // --- ここまで追加 ---
+
+        // タブが 'buy' の場合（購入商品一覧）
         if ($tab === 'buy') {
             $items = $user
-                // ユーザーの購入履歴（Purchaseモデル）を取得するためのリレーション。
-                // Userモデルに定義されている purchases() メソッド（hasManyなど）を呼び出す。
                 ->purchases()
-
-                // 各購入履歴（Purchase）に紐づいている商品（Itemモデル）をあらかじめ読み込む（Eager Loading）。
-                // これにより、あとで $purchase->item とアクセスする際にDBを再度叩かずに済み、N+1問題を回避できる。
                 ->with('item')
-
-                // 実際に上記までのクエリビルダーを実行して、購入履歴（Purchaseのコレクション）をデータベースから取得する。
                 ->get()
-
-                // 取得した各購入履歴（Purchase）から、対応する商品情報（Item）だけを抽出する。
-                // 最終的に、Itemモデルのコレクションが得られる（購入履歴の中身の商品のみを集めた結果）。
                 ->map(fn($purchase) => $purchase->item);
         } else {
-            // 出品した商品を取得します
+            // デフォルト（出品商品一覧）
             $items = Item::where('user_id', $user->id)->get();
         }
 
-        // ビュー(user/show.blade.php)にデータを渡して表示します
+        // ビュー（user/show.blade.php）にデータを渡して表示
         return view('user.show', [
             'user' => $user,
             'items' => $items,

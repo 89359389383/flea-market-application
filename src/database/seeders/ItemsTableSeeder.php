@@ -13,18 +13,20 @@ class ItemsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        // `UsersTableSeeder` で作成したユーザーを取得
-        $user = User::where('email', 'test@example.com')->first();
+        // --- 出品者Aと出品者Bを取得 ---
+        $userA = User::where('email', 'sellerA@example.com')->first();
+        $userB = User::where('email', 'sellerB@example.com')->first();
+        // --- ゲストユーザーは何も紐付けないのでここでは使用しません ---
 
-        if (!$user) {
-            // ユーザーが存在しない場合はエラーを出す（デバッグ用）
+        if (!$userA || !$userB) {
+            // どちらか1つでもユーザーがいなければ例外
             throw new \Exception("ユーザーが見つかりません。先に UsersTableSeeder を実行してください。");
         }
 
-        // 商品データリスト
-        $items = [
+        // --- ユーザーAが出品する商品（5件） ---
+        $itemsA = [
             [
-                'user_id' => $user->id,
+                'user_id' => $userA->id,
                 'brand_name' => 'Armani',
                 'name' => '腕時計',
                 'description' => 'スタイリッシュなデザインのメンズ腕時計',
@@ -38,7 +40,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userA->id,
                 'brand_name' => null,
                 'name' => 'HDD',
                 'description' => '高速で信頼性の高いハードディスク',
@@ -52,7 +54,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userA->id,
                 'brand_name' => null,
                 'name' => '玉ねぎ3束',
                 'description' => '新鮮な玉ねぎ3束のセット',
@@ -66,7 +68,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userA->id,
                 'brand_name' => null,
                 'name' => '革靴',
                 'description' => 'クラシックなデザインの革靴',
@@ -80,7 +82,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userA->id,
                 'brand_name' => null,
                 'name' => 'ノートPC',
                 'description' => '高性能なノートパソコン',
@@ -93,8 +95,12 @@ class ItemsTableSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+        ];
+
+        // --- ユーザーBが出品する商品（5件） ---
+        $itemsB = [
             [
-                'user_id' => $user->id,
+                'user_id' => $userB->id,
                 'brand_name' => null,
                 'name' => 'マイク',
                 'description' => '高音質のレコーディング用マイク',
@@ -108,7 +114,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userB->id,
                 'brand_name' => null,
                 'name' => 'ショルダーバッグ',
                 'description' => 'おしゃれなショルダーバッグ',
@@ -122,7 +128,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userB->id,
                 'brand_name' => null,
                 'name' => 'タンブラー',
                 'description' => '使いやすいタンブラー',
@@ -136,7 +142,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userB->id,
                 'brand_name' => null,
                 'name' => 'コーヒーミル',
                 'description' => '手動のコーヒーミル',
@@ -150,7 +156,7 @@ class ItemsTableSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'user_id' => $user->id,
+                'user_id' => $userB->id,
                 'brand_name' => null,
                 'name' => 'メイクセット',
                 'description' => '便利なメイクアップセット',
@@ -165,7 +171,12 @@ class ItemsTableSeeder extends Seeder
             ],
         ];
 
-        foreach ($items as $item) {
+        // --- 商品登録（ユーザーA分） ---
+        foreach ($itemsA as $item) {
+            Item::create($item);
+        }
+        // --- 商品登録（ユーザーB分） ---
+        foreach ($itemsB as $item) {
             Item::create($item);
         }
     }

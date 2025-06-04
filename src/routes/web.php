@@ -6,7 +6,7 @@ use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\UserController;
 
-// Pro追加分コントローラー
+// 追加分コントローラー
 use App\Http\Controllers\TradeController;           // 取引チャット用
 use App\Http\Controllers\TradeMessageController;    // チャット投稿・編集・削除
 use App\Http\Controllers\EvaluationController;      // 取引評価用
@@ -88,7 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/mypage/profile', [UserController::class, 'update'])->name('user.update');
 
     // =======================
-    // Pro追加: 取引チャット・評価関連
+    // 追加: 取引チャット・評価関連
     // =======================
 
     // チャット画面（個別取引ID） 例: /trade-chat/1
