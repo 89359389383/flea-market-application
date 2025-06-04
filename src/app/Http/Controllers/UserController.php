@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;  // Logファサード
 use App\Models\User;
 use App\Models\Item;
 use App\Models\Trade;
@@ -17,53 +18,73 @@ class UserController extends Controller
      */
     public function show(Request $request)
     {
-        // 今ログインしているユーザー情報を取得
+        Log::debug('[UserController@show] メソッド開始');
+
         $user = auth()->user();
+        Log::debug('[UserController@show] ログインユーザー取得', ['user_id' => $user->id, 'user_name' => $user->name, 'email' => $user->email]);
 
-        // クエリパラメータ「page」（例: buy, sell, trading）を取得、なければ'sell'
         $tab = $request->query('page', 'sell');
+        Log::debug('[UserController@show] クエリパラメータ page=', ['page' => $tab]);
 
-        // --- 追加: 取引中商品タブ（page=trading）の場合 ---
-        if ($tab === 'trading') { // ← 追加：取引中一覧
-            // 自分が売り手 or 買い手の「進行中（is_completed=false）」取引をすべて取得
+        if ($tab === 'trading') {
+            Log::debug('[UserController@show] 取引中商品の一覧を取得開始');
+
             $trades = Trade::with(['item', 'seller', 'buyer'])
                 ->where('is_completed', false)
                 ->where(function ($query) use ($user) {
-                    // $queryは「この中でさらに条件を追加できる箱」です
-                    // $user を「use」で持ち込んだから使える！
-                    // 売り手 or 買い手どちらかに自分が入っていればOK
+                    Log::debug('[UserController@show][Trade Query] 売り手か買い手がログインユーザーである条件設定', ['user_id' => $user->id]);
                     $query->where('seller_id', $user->id)
                         ->orWhere('buyer_id', $user->id);
                 })
                 ->orderBy('updated_at', 'desc')
                 ->get();
 
-            // ビュー（user/show.blade.php）へ渡す
+            Log::debug('[UserController@show] 取引中商品の取得完了', ['count' => $trades->count()]);
+            Log::debug('[UserController@show] 取引中商品のIDリスト', ['trade_ids' => $trades->pluck('id')->toArray()]);
+
             return view('user.show', [
                 'user' => $user,
-                'trades' => $trades, // ← 追加：trades（取引リスト）を渡す
+                'trades' => $trades,
                 'tab' => $tab,
             ]);
         }
-        // --- ここまで追加 ---
 
-        // タブが 'buy' の場合（購入商品一覧）
         if ($tab === 'buy') {
-            $items = $user
-                ->purchases()
-                ->with('item')
-                ->get()
-                ->map(fn($purchase) => $purchase->item);
-        } else {
-            // デフォルト（出品商品一覧）
-            $items = Item::where('user_id', $user->id)->get();
+            Log::debug('[UserController@show] 購入済み商品一覧を取得開始');
+
+            $trades = Trade::with(['item'])
+                ->where('is_completed', true)
+                ->where('buyer_id', $user->id)
+                ->orderBy('updated_at', 'desc')
+                ->get();
+
+            Log::debug('[UserController@show] 購入済み商品のTrade取得完了', ['count' => $trades->count()]);
+            Log::debug('[UserController@show] 購入済みTradeのIDリスト', ['trade_ids' => $trades->pluck('id')->toArray()]);
+
+            $items = $trades->map(function ($trade) {
+                Log::debug('[UserController@show][map] Tradeからitemを取得', ['trade_id' => $trade->id, 'item_id' => optional($trade->item)->id]);
+                return $trade->item;
+            });
+
+            Log::debug('[UserController@show] 購入済み商品のItem変換完了', ['count' => $items->count(), 'item_ids' => $items->pluck('id')->toArray()]);
+
+            return view('user.show', [
+                'user' => $user,
+                'tab' => $tab,
+                'items' => $items,
+            ]);
         }
 
-        // ビュー（user/show.blade.php）にデータを渡して表示
+        Log::debug('[UserController@show] 出品商品一覧を取得開始');
+
+        $items = Item::where('user_id', $user->id)->get();
+
+        Log::debug('[UserController@show] 出品商品の取得完了', ['count' => $items->count(), 'item_ids' => $items->pluck('id')->toArray()]);
+
         return view('user.show', [
             'user' => $user,
+            'tab' => $tab,
             'items' => $items,
-            'tab' => $tab
         ]);
     }
 
@@ -74,10 +95,11 @@ class UserController extends Controller
      */
     public function edit()
     {
-        // 現在ログインしているユーザーの情報を取得します
-        $user = auth()->user();
+        Log::debug('[UserController@edit] メソッド開始');
 
-        // ビュー(user/edit.blade.php)にユーザー情報を渡して表示します
+        $user = auth()->user();
+        Log::debug('[UserController@edit] ログインユーザー取得', ['user_id' => $user->id, 'user_name' => $user->name, 'email' => $user->email]);
+
         return view('user.edit', ['user' => $user]);
     }
 
@@ -88,21 +110,40 @@ class UserController extends Controller
      */
     public function update(ProfileRequest $request)
     {
-        // 現在ログインしているユーザーの情報を取得します
+        Log::debug('[UserController@update] メソッド開始');
+
         $user = User::find(auth()->id());
+        Log::debug('[UserController@update] ユーザー情報取得', ['user_id' => $user->id, 'user_name' => $user->name, 'email' => $user->email]);
 
-        // ユーザー情報を一括更新 (updateメソッドを使用)
-        $user->update([
-            'name' => $request->input('name'),                // ユーザー名を更新
-            'postal_code' => $request->input('postal_code'),  // 郵便番号を更新
-            'address' => $request->input('address'),          // 住所を更新
-            'building' => $request->input('building'),        // 建物名を更新
-            'profile_image' => $request->hasFile('profile_image')  // プロフィール画像がアップロードされた場合
-                ? $request->file('profile_image')->store('profiles', 'public') // 画像を保存し、パスを取得
-                : $user->profile_image // 画像がない場合は元の画像パスを保持
-        ]);
+        if ($request->hasFile('profile_image')) {
+            $path = $request->file('profile_image')->store('profiles', 'public');
+            Log::debug('[UserController@update] プロフィール画像アップロード', ['path' => $path]);
+        } else {
+            $path = $user->profile_image;
+            Log::debug('[UserController@update] プロフィール画像アップロードなし、既存画像パスを使用', ['path' => $path]);
+        }
 
-        // プロフィール更新後にプロフィールページにリダイレクトし、成功メッセージを表示します
+        $updateData = [
+            'name' => $request->input('name'),
+            'postal_code' => $request->input('postal_code'),
+            'address' => $request->input('address'),
+            'building' => $request->input('building'),
+            'profile_image' => $path,
+        ];
+
+        Log::debug('[UserController@update] 更新データ準備完了', $updateData);
+
+        try {
+            $user->update($updateData);
+            Log::debug('[UserController@update] ユーザー情報更新成功', ['user_id' => $user->id]);
+        } catch (\Exception $e) {
+            Log::debug('[UserController@update] ユーザー情報更新エラー', [
+                'error_message' => $e->getMessage(),
+                'user_id' => $user->id,
+            ]);
+            return redirect()->route('user.show')->with('error', 'プロフィール更新に失敗しました。');
+        }
+
         return redirect()->route('user.show')->with('success', 'プロフィールを更新しました。');
     }
 
@@ -113,23 +154,26 @@ class UserController extends Controller
      */
     public function buyList()
     {
-        // 現在のユーザーを取得
-        $user = auth()->user();
+        Log::debug('[UserController@buyList] メソッド開始');
 
-        // ユーザーが購入した商品のみ取得（購入履歴の item データ）
+        $user = auth()->user();
+        Log::debug('[UserController@buyList] ログインユーザー取得', ['user_id' => $user->id, 'user_name' => $user->name]);
+
         try {
-            // ログイン中のユーザーが購入した商品の一覧を取得する処理
-            $purchasedItems = $user->purchases()               // ユーザーが購入した「購入履歴」の一覧を取得
-                ->with('item')                                 // 各購入履歴に関連する「商品情報」も一緒に取得しておく
-                ->get()                                        // 上記の条件で実際にデータベースから購入履歴をまとめて取得
-                ->map(function ($purchase) {                   // 取得した購入履歴を1件ずつ処理する（map関数で変換）
-                    return $purchase->item;                    // 各購入履歴から「商品情報（item）」だけを取り出して返す
-                });                                            // 最終的に「商品情報だけの一覧」として$purchasedItemsに代入
+            $purchasedItems = $user->purchases()
+                ->with('item')
+                ->get()
+                ->map(function ($purchase) {
+                    Log::debug('[UserController@buyList][map] purchaseからitemを取得', ['purchase_id' => $purchase->id, 'item_id' => optional($purchase->item)->id]);
+                    return $purchase->item;
+                });
+
+            Log::debug('[UserController@buyList] 購入履歴取得成功', ['count' => $purchasedItems->count(), 'item_ids' => $purchasedItems->pluck('id')->toArray()]);
         } catch (\Exception $e) {
+            Log::debug('[UserController@buyList] 購入履歴取得エラー', ['error_message' => $e->getMessage(), 'user_id' => $user->id]);
             return redirect()->route('user.show')->with('error', '購入履歴の取得中にエラーが発生しました。');
         }
 
-        // tab を 'buy' に設定してビューへ渡す
         return view('user.show', [
             'items' => $purchasedItems,
             'tab' => 'buy'
@@ -143,13 +187,14 @@ class UserController extends Controller
      */
     public function sellList()
     {
-        // 現在ログインしているユーザーを取得します
+        Log::debug('[UserController@sellList] メソッド開始');
+
         $user = auth()->user();
+        Log::debug('[UserController@sellList] ログインユーザー取得', ['user_id' => $user->id, 'user_name' => $user->name]);
 
-        // ユーザーが出品した商品をデータベースから取得します
         $items = Item::where('user_id', $user->id)->get();
+        Log::debug('[UserController@sellList] 出品商品取得完了', ['count' => $items->count(), 'item_ids' => $items->pluck('id')->toArray()]);
 
-        // ビュー(user/show.blade.php)に商品データを渡して表示します
         return view('user.show', ['items' => $items, 'tab' => 'sell']);
     }
 }

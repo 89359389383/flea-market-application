@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Http\Requests\PurchaseRequest;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Illuminate\Support\Facades\Log; // Logファサードをインポート
 
 class PurchaseController extends Controller
 {
@@ -17,12 +18,16 @@ class PurchaseController extends Controller
      */
     public function show($item_id)
     {
+        Log::debug("showメソッドが呼び出されました。item_id: {$item_id}");
+
         // 商品のIDを使って、データベースから商品の情報を取得します。
         // 'findOrFail'は商品が見つからない場合、404エラーを自動的に表示します。
         $item = Item::findOrFail($item_id);
+        Log::debug("商品情報を取得しました。", ['item' => $item]);
 
         // 現在ログインしているユーザーの情報を取得します。
         $user = auth()->user();
+        Log::debug("ログインユーザー情報を取得しました。", ['user' => $user]);
 
         // ビューに商品情報とユーザー情報を渡して表示します。
         return view('purchase.show', [
@@ -38,18 +43,23 @@ class PurchaseController extends Controller
      */
     public function store(PurchaseRequest $request, $item_id)
     {
+        Log::debug("storeメソッドが呼び出されました。item_id: {$item_id}");
+
         try {
             $item = Item::findOrFail($item_id);
+            Log::debug("商品情報を取得しました。", ['item' => $item]);
 
             if ($item->sold) {
+                Log::debug("商品はすでに売り切れです。", ['item_id' => $item_id]);
                 return redirect()->route('items.show', $item_id)->with('error', 'この商品はすでに売り切れです。');
             }
 
             // ユーザーが入力した支払い方法（たとえば「 カード払い 」）の文字列を取り出し、
             // 前後にあるいらない空白（スペース）を消して、きれいにする
             $trimmedPaymentMethod = trim($request->input('payment_method'));
+            Log::debug("支払い方法を取得しました。", ['payment_method' => $trimmedPaymentMethod]);
 
-            // データを挿入
+            // 購入レコード
             Purchase::create([
                 'user_id' => auth()->id(),
                 'item_id' => $item->id,
@@ -58,12 +68,24 @@ class PurchaseController extends Controller
                 'building' => $request->input('building'),
                 'payment_method' => $trimmedPaymentMethod,
             ]);
+            Log::debug("購入レコードを作成しました。");
 
-            // 商品の状態を「sold」に更新
+            // 取引テーブルに「新規取引」レコードを追加（ここが超重要！！）
+            \App\Models\Trade::create([
+                'item_id'   => $item->id,
+                'seller_id' => $item->user_id,       // 出品者（アイテム作成者）
+                'buyer_id'  => auth()->id(),         // 購入者（今のユーザー）
+                'is_completed' => false,             // 取引はまだ未完了
+            ]);
+            Log::debug("取引レコードを作成しました。");
+
+            // 商品の状態を「sold」に
             $item->update(['sold' => true]);
+            Log::debug("商品状態を更新しました。", ['item_id' => $item_id]);
 
             return redirect()->route('items.index');
         } catch (\Exception $e) {
+            Log::error("購入処理に失敗しました。", ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', '購入処理に失敗しました。');
         }
     }
@@ -73,11 +95,14 @@ class PurchaseController extends Controller
      */
     public function checkout($item_id)
     {
+        Log::debug("checkoutメソッドが呼び出されました。item_id: {$item_id}");
+
         try {
             // StripeのAPIキー設定（Stripeという決済サービスを使うための「鍵」を設定します）
             // .envファイルに書かれている「STRIPE_SECRET_KEY」という秘密のキーを取り出します。
             // このキーは、Stripeに「このアプリは本物ですよ」と伝えるために使います。
             $stripeKey = env('STRIPE_SECRET_KEY');
+            Log::debug("Stripe APIキーを設定しました。");
 
             // Stripeに「このアプリは本物です」と証明するために、さっき取り出した秘密のキーをセットします。
             // これをしないと、Stripeはこのアプリのリクエストを受け付けてくれません。
@@ -87,12 +112,14 @@ class PurchaseController extends Controller
             // $item_id はURLから渡される商品IDです。
             // findOrFailは、商品が見つからなかった場合、自動で404エラー（ページが見つからない）を出してくれます。
             $item = Item::findOrFail($item_id);
+            Log::debug("商品情報を取得しました。", ['item' => $item]);
 
             // ドメイン設定（Stripeから購入完了後に戻ってくるURLの「住所」です）
             // .envファイルにある APP_URL（このアプリのURL）を取り出します。
             // もし見つからない場合は「http://localhost（自分のパソコン）」を使います。
             // たとえば本番では https://furima-app.com などのURLになります。
             $YOUR_DOMAIN = env('APP_URL', 'http://localhost');
+            Log::debug("ドメイン情報を設定しました。", ['domain' => $YOUR_DOMAIN]);
 
             // 画像URLの処理
 
@@ -107,14 +134,13 @@ class PurchaseController extends Controller
                 // 例: "item1.jpg" → "http://あなたのサイト/storage/item1.jpg"
                 $image_url = asset('storage/' . $item->image);
             }
-
-            // URLの中に「+（プラス記号）」があったら、それを「%20（スペースを表す記号）」に変える
-            // Stripeなどの外部サービスでは、+より%20のほうが正しく伝わるため、変換しておく
             $image_url = str_replace('+', '%20', $image_url);
+            Log::debug("商品画像URLを設定しました。", ['image_url' => $image_url]);
 
             // 通貨を「日本円（jpy）」に設定します。
             // Stripeでは、使う通貨によって金額の扱い方が違います。
             $currency = 'jpy';
+            Log::debug("通貨を設定しました。", ['currency' => $currency]);
 
             // Stripeに渡す「unit_amount（単位付きの金額）」を計算します。
             // Stripeでは、多くの通貨（たとえばドルやユーロ）の場合、金額を100倍して渡す必要があります。
@@ -125,6 +151,7 @@ class PurchaseController extends Controller
             // - 通貨が「jpy（日本円）」だったら、price（価格）をそのまま使う
             // - それ以外の通貨だったら、price × 100 にして渡す
             $unit_amount = ($currency === 'jpy') ? $item->price : $item->price * 100;
+            Log::debug("金額を設定しました。", ['unit_amount' => $unit_amount]);
 
             // StripeのCheckoutセッションを作成（ユーザーがクレジットカードで支払うためのページ）
             $checkout_session = Session::create([
@@ -166,10 +193,12 @@ class PurchaseController extends Controller
                 // 支払いを途中でキャンセルしたときに戻るURL（キャンセルページに移動）
                 'cancel_url' => $YOUR_DOMAIN . '/cancel',
             ]);
+            Log::debug("Stripe Checkoutセッションを作成しました。", ['checkout_session' => $checkout_session]);
 
             // Stripeから作られた支払いページのURLにリダイレクト（ユーザーの画面がStripeの支払い画面に切り替わる）
             return redirect($checkout_session->url);
         } catch (\Exception $e) {
+            Log::error("決済画面への遷移に失敗しました。", ['error' => $e->getMessage()]);
             return redirect()->route('purchase.show', ['item_id' => $item_id])
                 ->with('error', '決済画面への遷移に失敗しました。');
         }
@@ -178,15 +207,24 @@ class PurchaseController extends Controller
     // Stripe支払い後に呼び出される処理（storeのロジック再利用）
     public function complete($item_id)
     {
-        try {
-            $item = Item::findOrFail($item_id);
+        Log::debug("completeメソッドが呼び出されました。item_id: {$item_id}");
 
+        try {
+            // 商品を取得
+            $item = Item::findOrFail($item_id);
+            Log::debug("商品情報を取得しました。", ['item' => $item]);
+
+            // すでに売り切れならエラーで戻す
             if ($item->sold) {
+                Log::debug("商品はすでに売り切れです。", ['item_id' => $item_id]);
                 return redirect()->route('items.show', $item_id)->with('error', 'この商品はすでに売り切れです。');
             }
 
+            // 現在のログインユーザー取得（購入者）
             $user = auth()->user();
+            Log::debug("ログインユーザー情報を取得しました。", ['user' => $user]);
 
+            // 購入履歴を作成
             Purchase::create([
                 'user_id' => $user->id,
                 'item_id' => $item->id,
@@ -195,11 +233,28 @@ class PurchaseController extends Controller
                 'building' => $user->building,
                 'payment_method' => 'カード払い', // ★固定
             ]);
+            Log::debug("購入履歴を作成しました。");
 
+            // 商品を売り切れ状態に変更
             $item->update(['sold' => true]);
+            Log::debug("商品状態を更新しました。", ['item_id' => $item_id]);
 
+            // -------------------------------------------
+            // ここから追加：取引テーブルに新規取引レコードを作成する処理
+            \App\Models\Trade::create([
+                'item_id'      => $item->id,
+                'seller_id'    => $item->user_id,  // 出品者
+                'buyer_id'     => $user->id,       // 購入者
+                'is_completed' => false,           // 取引は未完了
+            ]);
+            Log::debug("取引レコードを作成しました。");
+            // -------------------------------------------
+
+            // 購入完了メッセージでトップへリダイレクト
             return redirect()->route('items.index')->with('success', '購入が完了しました');
         } catch (\Exception $e) {
+            Log::error("購入処理に失敗しました。", ['error' => $e->getMessage()]);
+            // エラー時は商品詳細へ戻りエラーメッセージ
             return redirect()->route('items.show', $item_id)->with('error', '購入処理に失敗しました');
         }
     }
