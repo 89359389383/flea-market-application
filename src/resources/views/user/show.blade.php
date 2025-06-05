@@ -18,19 +18,51 @@
             @endif
         </div>
         <h1 class="username">{{ Auth::user()->name }}</h1>
+        {{-- ▼ 評価平均表示（評価がある場合のみ） --}}
+        @if (isset($evaluations_count) && $evaluations_count > 0)
+        @php $avg = round($average_score); @endphp
+        <div class="rating" style="margin-top:10px;">
+            @for ($i = 1; $i <= 5; $i++)
+                <span class="star {{ $i <= $avg ? 'filled' : 'empty' }}">★</span>
+                @endfor
+                <span style="margin-left:8px;">
+                    ({{ round($average_score) }} / 5) 評価{{ $evaluations_count }}件
+                </span>
+        </div>
+        @endif
     </div>
     <a href="{{ route('user.edit') }}" class="edit-button">プロフィールを編集</a>
 </div>
 
 @php
 $tab = request()->query('page', $tab ?? 'sell');
+// ▼ tradingタブの未読通知バッジ件数
+$user = Auth::user();
+$unread_trades_count = 0;
+if (isset($trades) && $trades instanceof \Illuminate\Support\Collection) {
+$unread_trades_count = $trades->filter(function($trade) use ($user) {
+// 「自分以外」から「未読」が1件でもあればカウント
+return $trade->messages()
+->where('user_id', '!=', $user->id)
+->where('is_read', false)
+->count() > 0;
+})->count();
+}
 @endphp
 
 <nav class="tabs">
-    <a href="{{ route('user.show', ['page' => 'sell']) }}" class="tab move-right {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
-    <a href="{{ route('user.show', ['page' => 'buy']) }}" class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
-    <!-- ▼ tradingタブを追加 -->
-    <a href="{{ route('user.show', ['page' => 'trading']) }}" class="tab {{ $tab == 'trading' ? 'active' : '' }}">取引中の商品</a>
+    <a href="{{ route('user.show', ['page' => 'sell']) }}"
+        class="tab move-right {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
+    <a href="{{ route('user.show', ['page' => 'buy']) }}"
+        class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
+    <!-- ▼ tradingタブ：未読があればバッジ -->
+    <a href="{{ route('user.show', ['page' => 'trading']) }}"
+        class="tab {{ $tab == 'trading' ? 'active' : '' }}">
+        取引中の商品
+        @if ($unread_trades_count > 0)
+        <span class="tab-badge">{{ $unread_trades_count }}</span>
+        @endif
+    </a>
 </nav>
 
 <div class="product-grid">
@@ -49,22 +81,37 @@ $tab = request()->query('page', $tab ?? 'sell');
     </div>
     @endforeach
     @elseif ($tab == 'trading')
-    {{-- ▼ tradingタブのときは「trades」をforeach --}}
+    {{-- ▼ tradingタブ：取引中商品＋通知バッジ・未読メッセージ数 --}}
     @foreach ($trades as $trade)
+    @php
+    // 未読メッセージ数（自分以外から、かつ未読）
+    $unread_count = $trade->messages()
+    ->where('user_id', '!=', $user->id)
+    ->where('is_read', false)
+    ->count();
+    // 総メッセージ件数
+    $total_count = $trade->messages()->count();
+    @endphp
     <div class="product-item">
         <a href="{{ route('trade.chat.show', $trade->id) }}">
-            <div class="image-container">
+            <div class="image-container" style="position:relative;">
                 <img src="{{ filter_var($trade->item->image, FILTER_VALIDATE_URL) ? $trade->item->image : Storage::url($trade->item->image) }}" class="product-image">
-                <div class="trading-label">取引中</div> {{-- ラベルを「取引中」に --}}
+                <div class="trading-label">取引中</div>
+                @if ($unread_count > 0)
+                <div class="notification-badge" style="position:absolute;top:0;left:0;">
+                    {{ $unread_count }}
+                </div>
+                @endif
             </div>
             <div class="product-info">
                 <span class="product-name">{{ $trade->item->name }}</span>
+                <span class="message-count" style="margin-left:8px; font-size:12px;">メッセージ: {{ $total_count }}</span>
             </div>
         </a>
     </div>
     @endforeach
     @else
-    {{-- sellタブ（出品商品） --}}
+    {{-- ▼ sellタブ（出品商品） --}}
     @foreach ($items as $item)
     <div class="product-item">
         <a href="{{ route('items.show', $item->id) }}">

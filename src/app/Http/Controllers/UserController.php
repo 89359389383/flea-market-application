@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;  // Logファサード
+use Illuminate\Support\Facades\Log; // Logファサード
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Item;
 use App\Models\Trade;
@@ -26,17 +27,24 @@ class UserController extends Controller
         $tab = $request->query('page', 'sell');
         Log::debug('[UserController@show] クエリパラメータ page=', ['page' => $tab]);
 
+        // ★追加：評価平均と評価数（常に渡す。評価0の場合はBlade側で非表示）
+        $average_score = $user->evaluationsReceived()->avg('score');
+        $evaluations_count = $user->evaluationsReceived()->count();
+
         if ($tab === 'trading') {
             Log::debug('[UserController@show] 取引中商品の一覧を取得開始');
 
-            $trades = Trade::with(['item', 'seller', 'buyer'])
+            // ★修正：新着メッセージ（最新日時）で自動ソート
+            $trades = Trade::with(['item', 'seller', 'buyer', 'messages'])
                 ->where('is_completed', false)
                 ->where(function ($query) use ($user) {
                     Log::debug('[UserController@show][Trade Query] 売り手か買い手がログインユーザーである条件設定', ['user_id' => $user->id]);
                     $query->where('seller_id', $user->id)
                         ->orWhere('buyer_id', $user->id);
                 })
-                ->orderBy('updated_at', 'desc')
+                // ▼最新メッセージ日時で並べる（なければtradeのupdated_at）
+                ->withMax('messages', 'created_at') // messages_max_created_at カラムを付与
+                ->orderByDesc(DB::raw('COALESCE(messages_max_created_at, trades.updated_at)'))
                 ->get();
 
             Log::debug('[UserController@show] 取引中商品の取得完了', ['count' => $trades->count()]);
@@ -46,6 +54,8 @@ class UserController extends Controller
                 'user' => $user,
                 'trades' => $trades,
                 'tab' => $tab,
+                'average_score' => $average_score,     // ★追加
+                'evaluations_count' => $evaluations_count, // ★追加
             ]);
         }
 
@@ -72,6 +82,8 @@ class UserController extends Controller
                 'user' => $user,
                 'tab' => $tab,
                 'items' => $items,
+                'average_score' => $average_score,     // ★追加
+                'evaluations_count' => $evaluations_count, // ★追加
             ]);
         }
 
@@ -85,6 +97,8 @@ class UserController extends Controller
             'user' => $user,
             'tab' => $tab,
             'items' => $items,
+            'average_score' => $average_score,     // ★追加
+            'evaluations_count' => $evaluations_count, // ★追加
         ]);
     }
 
