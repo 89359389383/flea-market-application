@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\TradeMessageRequest;
 use Illuminate\Support\Facades\Auth; // ログイン中のユーザーを取得するため
 use Illuminate\Support\Facades\Log;  // 追加: ログ出力用
 use App\Models\Trade;                // 取引データを使うため
@@ -15,7 +16,7 @@ class TradeMessageController extends Controller
      * URL例: /trade-chat/{trade_id}/message
      * メソッド: POST
      */
-    public function store(Request $request, $trade_id)
+    public function store(TradeMessageRequest $request, $trade_id)
     {
         Log::debug("[store] メッセージ投稿処理開始: trade_id={$trade_id}");
 
@@ -31,21 +32,35 @@ class TradeMessageController extends Controller
         $body = $request->input('body'); // フォーム名が 'body' だと仮定
         Log::debug("[store] 入力メッセージ本文: " . ($body !== null ? mb_substr($body, 0, 100) : 'NULL'));
 
+        // [追加] 入力保持（失敗時に入力を復元するため）
+        session(['chat_body_' . $trade_id => $body]);
+
         // 4. 入力チェック（空ならエラー）
         if (empty($body)) {
             Log::debug("[store] メッセージ本文が空です。処理中断。");
             return redirect()->back()->with('error', 'メッセージを入力してください。');
         }
 
+        // --- ここから画像アップロード処理追加 ---
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('trade_messages', 'public');
+            Log::debug("[store] 画像アップロード成功: path={$imagePath}");
+        }
+        // --- ここまで画像アップロード処理 ---
+
         // 5. 新しいチャットメッセージをデータベースに保存
         $message = TradeMessage::create([
-            'trade_id' => $trade->id, // どの取引か
-            'user_id' => $user->id,   // 誰が送ったか
-            'body' => $body,          // 本文
-            'image_path' => null,     // 画像は今回はなし
-            'is_read' => false,       // 既読フラグ（新規は未読）
+            'trade_id' => $trade->id,    // どの取引か
+            'user_id' => $user->id,      // 誰が送ったか
+            'body' => $body,             // 本文
+            'image_path' => $imagePath,  // 画像パス（nullの場合もあり）
+            'is_read' => false,          // 既読フラグ（新規は未読）
         ]);
         Log::debug("[store] メッセージ保存成功: message_id={$message->id}");
+
+        // [追加] 投稿成功したら入力保持データをクリア
+        session()->forget('chat_body_' . $trade_id);
 
         // 6. チャット画面へ戻す（成功メッセージ付き）
         Log::debug("[store] 処理終了。チャット画面へリダイレクト。");

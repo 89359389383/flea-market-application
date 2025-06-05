@@ -113,9 +113,14 @@ class EvaluationController extends Controller
             'score' => $score,
         ]);
 
-        // 8. 評価が完了したことを伝えるメッセージを付けて、商品一覧画面（トップページ）にリダイレクト
+        // 8. 取引完了フラグを立てて保存
+        $trade->is_completed = true;
+        $trade->save();
+        Log::debug('取引完了フラグを立てて保存完了', ['trade_id' => $trade->id]);
+
+        // 9. 評価が完了したことを伝えるメッセージを付けて、商品一覧画面（トップページ）にリダイレクト
         Log::debug('評価完了、商品一覧ページへリダイレクト', ['user_id' => $user->id]);
         return redirect()->route('items.index')
-            ->with('success', '取引の評価を登録しました。');
+            ->with('success', '取引の評価を登録し、取引を完了しました。');
     }
 }

@@ -21,21 +21,30 @@ class TradeController extends Controller
 
         // 1. 今ログインしているユーザーを取得
         $user = Auth::user();
+        if (!$user) {
+            Log::warning("未ログインユーザーのアクセス試行");
+            return redirect()->route('login')->with('error', 'ログインが必要です。');
+        }
         Log::debug("現在のログインユーザー: id={$user->id}, name={$user->name}");
 
         // 2. 取引IDで該当取引データをwithでリレーションとともに取得
-        $trade = Trade::with(['item', 'seller', 'buyer', 'messages.user'])->findOrFail($trade_id);
-        Log::debug("取得した取引データ:", [
-            'trade_id' => $trade->id,
-            'item_id' => $trade->item->id ?? null,
-            'seller_id' => $trade->seller->id ?? null,
-            'buyer_id' => $trade->buyer->id ?? null,
-            'messages_count' => $trade->messages->count(),
-        ]);
+        try {
+            $trade = Trade::with(['item', 'seller', 'buyer', 'messages.user'])->findOrFail($trade_id);
+            Log::debug("取得した取引データ:", [
+                'trade_id' => $trade->id,
+                'item_id' => $trade->item->id ?? null,
+                'seller_id' => $trade->seller->id ?? null,
+                'buyer_id' => $trade->buyer->id ?? null,
+                'messages_count' => $trade->messages->count(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error("取引データ取得エラー - trade_id: {$trade_id} - " . $e->getMessage());
+            return redirect()->back()->with('error', '該当する取引が見つかりません。');
+        }
 
         // 3. ユーザーが出品者または購入者か確認
         if ($trade->seller_id !== $user->id && $trade->buyer_id !== $user->id) {
-            Log::debug("アクセス拒否: ユーザーは取引の出品者でも購入者でもない", [
+            Log::warning("アクセス拒否: ユーザーは取引の出品者でも購入者でもない", [
                 'user_id' => $user->id,
                 'seller_id' => $trade->seller_id,
                 'buyer_id' => $trade->buyer_id,
@@ -45,32 +54,70 @@ class TradeController extends Controller
         Log::debug("アクセス許可: ユーザーは取引の当事者である");
 
         // 4. チャットメッセージ一覧を作成日時昇順で取得
-        $messages = $trade->messages()->orderBy('created_at', 'asc')->get();
-        Log::debug("メッセージ取得件数: " . $messages->count());
+        try {
+            $messages = $trade->messages()->with('user')->orderBy('created_at', 'asc')->get();
+            Log::debug("メッセージ取得件数: " . $messages->count());
+        } catch (\Exception $e) {
+            Log::error("メッセージ取得エラー - trade_id: {$trade->id} - " . $e->getMessage());
+            return redirect()->back()->with('error', 'メッセージの取得に失敗しました。');
+        }
 
         // 5. 未読メッセージを既読にする処理
         $updatedCount = 0;
         foreach ($messages as $message) {
+            Log::debug("メッセージ確認中: message_id={$message->id}, user_id={$message->user_id}, is_read=" . ($message->is_read ? 'true' : 'false'));
             if ($message->user_id !== $user->id && !$message->is_read) {
                 $message->is_read = true;
-                $message->save();
-                $updatedCount++;
-                Log::debug("未読メッセージを既読に更新: message_id={$message->id}, user_id={$message->user_id}");
+                try {
+                    $message->save();
+                    $updatedCount++;
+                    Log::debug("未読メッセージを既読に更新成功: message_id={$message->id}, user_id={$message->user_id}");
+                } catch (\Exception $e) {
+                    Log::error("未読メッセージの既読更新失敗: message_id={$message->id} - " . $e->getMessage());
+                }
             }
         }
         Log::debug("未読メッセージの既読更新件数: {$updatedCount}");
 
-        // 6. ビューを返す直前のログ
-        Log::debug("ビュー呼び出し: trade.chat", [
+        // 6. 追加：パートナー（相手ユーザー）を決定
+        $partner = ($trade->seller_id === $user->id) ? $trade->buyer : $trade->seller;
+        Log::debug("パートナー情報: id={$partner->id}, name={$partner->name}");
+
+        // 7. 追加：サイドバー用、関係する全取引取得
+        try {
+            $other_trades = Trade::with(['item', 'messages'])
+                ->where(function ($q) use ($user) {
+                    $q->where('seller_id', $user->id)->orWhere('buyer_id', $user->id);
+                })->get();
+            Log::debug("サイドバー用取引一覧取得件数: {$other_trades->count()}");
+        } catch (\Exception $e) {
+            Log::error("サイドバー用取引一覧取得エラー - user_id: {$user->id} - " . $e->getMessage());
+            $other_trades = collect(); // 空コレクション返す
+        }
+
+        // 8. 【追加】評価済みかどうか判定
+        $alreadyEvaluated = \App\Models\Evaluation::where('trade_id', $trade->id)
+            ->where('evaluator_id', $user->id)
+            ->exists();
+
+        // 9. ビューを返す直前のログ
+        Log::debug("ビュー呼び出し準備完了: trade.chat", [
             'trade_id' => $trade->id,
             'messages_count' => $messages->count(),
             'user_id' => $user->id,
+            'partner_id' => $partner->id,
+            'other_trades_count' => $other_trades->count(),
+            'alreadyEvaluated' => $alreadyEvaluated,
         ]);
 
+        // 10. ビューへ渡す
         return view('trade.chat', [
             'trade' => $trade,
             'messages' => $messages,
+            'partner' => $partner,
+            'other_trades' => $other_trades,
             'user' => $user,
+            'alreadyEvaluated' => $alreadyEvaluated,
         ]);
     }
 }
