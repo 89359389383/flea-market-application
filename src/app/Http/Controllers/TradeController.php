@@ -29,13 +29,14 @@ class TradeController extends Controller
 
         // 2. 取引IDで該当取引データをwithでリレーションとともに取得
         try {
-            $trade = Trade::with(['item', 'seller', 'buyer', 'messages.user'])->findOrFail($trade_id);
+            $trade = Trade::with(['item', 'seller', 'buyer', 'messages.user', 'evaluations'])->findOrFail($trade_id);
             Log::debug("取得した取引データ:", [
                 'trade_id' => $trade->id,
                 'item_id' => $trade->item->id ?? null,
                 'seller_id' => $trade->seller->id ?? null,
                 'buyer_id' => $trade->buyer->id ?? null,
                 'messages_count' => $trade->messages->count(),
+                'evaluations_count' => $trade->evaluations->count(),
             ]);
         } catch (\Exception $e) {
             Log::error("取引データ取得エラー - trade_id: {$trade_id} - " . $e->getMessage());
@@ -79,11 +80,11 @@ class TradeController extends Controller
         }
         Log::debug("未読メッセージの既読更新件数: {$updatedCount}");
 
-        // 6. 追加：パートナー（相手ユーザー）を決定
+        // 6. パートナー（相手ユーザー）を決定
         $partner = ($trade->seller_id === $user->id) ? $trade->buyer : $trade->seller;
         Log::debug("パートナー情報: id={$partner->id}, name={$partner->name}");
 
-        // 7. 追加：サイドバー用、関係する全取引取得
+        // 7. サイドバー用、関係する全取引取得
         try {
             $other_trades = Trade::with(['item', 'messages'])
                 ->where(function ($q) use ($user) {
@@ -95,22 +96,31 @@ class TradeController extends Controller
             $other_trades = collect(); // 空コレクション返す
         }
 
-        // 8. 【追加】評価済みかどうか判定
-        $alreadyEvaluated = \App\Models\Evaluation::where('trade_id', $trade->id)
-            ->where('evaluator_id', $user->id)
-            ->exists();
+        // 8. 追加：評価済みかどうか判定
+        $alreadyEvaluated = $trade->evaluations->where('evaluator_id', $user->id)->first();
+        $partner_id = ($user->id === $trade->seller_id) ? $trade->buyer_id : $trade->seller_id;
+        $partnerEvaluated = $trade->evaluations->where('evaluator_id', $partner_id)->first();
 
-        // 9. ビューを返す直前のログ
+        // 9. すでに双方評価済みかつ取引完了フラグ未立ての場合は立てる
+        if ($alreadyEvaluated && $partnerEvaluated && !$trade->is_completed) {
+            $trade->is_completed = true;
+            $trade->save();
+            Log::debug("双方評価済みのため取引完了フラグを立てました。trade_id: {$trade->id}");
+        }
+
+        // 10. ビューを返す直前のログ
         Log::debug("ビュー呼び出し準備完了: trade.chat", [
             'trade_id' => $trade->id,
             'messages_count' => $messages->count(),
             'user_id' => $user->id,
             'partner_id' => $partner->id,
             'other_trades_count' => $other_trades->count(),
-            'alreadyEvaluated' => $alreadyEvaluated,
+            'alreadyEvaluated' => $alreadyEvaluated ? true : false,
+            'partnerEvaluated' => $partnerEvaluated ? true : false,
+            'is_completed' => $trade->is_completed,
         ]);
 
-        // 10. ビューへ渡す
+        // 11. ビューへ渡す
         return view('trade.chat', [
             'trade' => $trade,
             'messages' => $messages,
@@ -118,6 +128,7 @@ class TradeController extends Controller
             'other_trades' => $other_trades,
             'user' => $user,
             'alreadyEvaluated' => $alreadyEvaluated,
+            'partnerEvaluated' => $partnerEvaluated,
         ]);
     }
 }

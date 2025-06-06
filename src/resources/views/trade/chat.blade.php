@@ -2,11 +2,12 @@
 <html lang="ja">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>取引チャット</title>
     <link rel="stylesheet" href="{{ asset('css/trade/chat.css') }}">
     <style>
+        /* 必要な部分だけ抜粋。実際は外部CSSに分離を推奨 */
         .user-message {
             text-align: right;
             margin-left: auto;
@@ -80,14 +81,15 @@
     <div class="sidebar">
         <h2>その他の取引</h2>
         @foreach($other_trades as $other)
+        @php
+        // 自分宛ての未読メッセージのみカウント（正確な未読バッジ件数）
+        $unread = $other->messages->where('is_read', false)
+        ->where('user_id', '!=', auth()->id())->count();
+        @endphp
         <form action="{{ route('trade.chat.show', $other->id) }}" method="get" style="margin-bottom:6px;">
             <button class="product-button @if($other->id === $trade->id) active @endif" type="submit">
                 <img src="{{ filter_var($other->item->image, FILTER_VALIDATE_URL) ? $other->item->image : Storage::url($other->item->image) }}" class="product-image-thumb">
                 <div>{{ $other->item->name }}</div>
-                @php
-                $unread = $other->messages->where('is_read', false)
-                ->where('user_id', '!=', auth()->id())->count();
-                @endphp
                 @if($unread)
                 <span class="badge">{{ $unread }}</span>
                 @endif
@@ -99,7 +101,7 @@
     <div class="main-content">
         <div class="header" style="display:flex;align-items:center;">
             <div class="avatar">
-                <img src="{{ asset('storage/' . ($partner->profile_image ?? 'default.png')) }}" class="avatar-img">
+                <img src="{{ asset('storage/' . ($partner->profile_image ?? 'default.png')) }}" class="avatar-img" alt="">
             </div>
             <h1 class="header-title" style="margin-left:15px;">
                 「{{ $partner->name }}」さんとの取引画面
@@ -108,7 +110,7 @@
 
         <div class="product-section" style="display:flex;align-items:center;">
             <div class="product-image">
-                <img src="{{ filter_var($trade->item->image, FILTER_VALIDATE_URL) ? $trade->item->image : Storage::url($trade->item->image) }}" class="product-image-thumb">
+                <img src="{{ filter_var($trade->item->image, FILTER_VALIDATE_URL) ? $trade->item->image : Storage::url($trade->item->image) }}" class="product-image-thumb" alt="商品画像">
             </div>
             <div class="product-info" style="margin-left:15px;">
                 <div class="product-name">{{ $trade->item->name }}</div>
@@ -123,13 +125,13 @@
             <div class="user-message">
                 <div class="user-message-header" style="display:flex;justify-content:flex-end;align-items:center;">
                     <span class="username">{{ $msg->user->name }}</span>
-                    <img src="{{ asset('storage/' . ($msg->user->profile_image ?? 'default.png')) }}" class="avatar-img" style="margin-left:5px;">
+                    <img src="{{ asset('storage/' . ($msg->user->profile_image ?? 'default.png')) }}" class="avatar-img" style="margin-left:5px;" alt="">
                 </div>
                 <div class="message-bubble">
                     {{ $msg->body }}
                     @if($msg->image_path)
                     <br>
-                    <img src="{{ Storage::url($msg->image_path) }}" style="max-width:100px;">
+                    <img src="{{ Storage::url($msg->image_path) }}" style="max-width:100px;" alt="添付画像">
                     @endif
                 </div>
                 <div class="message-actions">
@@ -143,14 +145,14 @@
             @else
             <div class="partner-message">
                 <div class="message-header" style="display:flex;align-items:center;">
-                    <img src="{{ asset('storage/' . ($msg->user->profile_image ?? 'default.png')) }}" class="avatar-img">
+                    <img src="{{ asset('storage/' . ($msg->user->profile_image ?? 'default.png')) }}" class="avatar-img" alt="">
                     <span class="username" style="margin-left:5px;">{{ $msg->user->name }}</span>
                 </div>
                 <div class="message-bubble">
                     {{ $msg->body }}
                     @if($msg->image_path)
                     <br>
-                    <img src="{{ Storage::url($msg->image_path) }}" style="max-width:100px;">
+                    <img src="{{ Storage::url($msg->image_path) }}" style="max-width:100px;" alt="添付画像">
                     @endif
                 </div>
             </div>
@@ -179,6 +181,10 @@
             <input type="file" name="image" accept="image/png,image/jpeg" style="display:none;" id="image-input">
             <button type="button" class="add-image-btn" onclick="document.getElementById('image-input').click();">画像を追加</button>
             <button class="send-btn" aria-label="送信">送信</button>
+            {{-- 画像プレビュー用 --}}
+            <div class="image-preview" style="margin-top: 8px;">
+                <img id="chat-image-preview" style="display:none; max-width:100px; max-height:100px;" alt="画像プレビュー">
+            </div>
             @error('body')
             <p class="error-message" style="color:red;">{{ $message }}</p>
             @enderror
@@ -199,12 +205,23 @@
             </div>
         </div>
 
-        {{-- 取引完了ボタン・モーダル（評価済みなら表示しない） --}}
-        @if(!$trade->is_completed && ($trade->buyer_id == auth()->id() || $trade->seller_id == auth()->id()) && empty($alreadyEvaluated))
+        {{-- 取引完了ボタン・モーダル（評価済みなら非表示） --}}
+        {{-- ここからBlade条件組み込み --}}
+        @if(
+        !$trade->is_completed &&
+        (
+        // 購入者の場合：自分が未評価
+        ($trade->buyer_id == auth()->id() && empty($alreadyEvaluated))
+        ||
+        // 出品者の場合：相手(購入者)が評価済み、かつ自分が未評価
+        ($trade->seller_id == auth()->id() && !empty($partnerEvaluated) && empty($alreadyEvaluated))
+        )
+        )
         <div style="margin-top:30px;text-align:center;">
             <button class="send-button" onclick="document.getElementById('complete-modal').style.display='block'">取引を完了する</button>
         </div>
         @endif
+        {{-- ここまでBlade条件組み込み --}}
 
         <div id="complete-modal" class="transaction-complete" style="display:none;">
             <div class="complete-header">取引が完了しました。</div>
@@ -213,7 +230,7 @@
                 <div class="rating-section">
                     <div class="rating-question">今回の取引相手はどうでしたか？</div>
                     <div class="star-rating" id="star-area">
-                        @for($i=1;$i<=5;$i++)
+                        @for($i=1; $i<=5; $i++)
                             <span class="star" data-score="{{ $i }}">★</span>
                             @endfor
                     </div>
@@ -228,13 +245,13 @@
     </div>
 
     <script>
-        // 編集リンククリック時：モーダル開く＋本文セット＋action絶対パス
+        // 編集リンククリック時：モーダル開く＋本文セット＋action絶対パス設定
         document.querySelectorAll('.edit-link').forEach(function(el) {
             el.addEventListener('click', function(e) {
                 e.preventDefault();
                 document.getElementById('edit-modal').style.display = 'block';
                 document.getElementById('edit-body').value = el.dataset.body;
-                // 絶対パスでactionセット（urlヘルパーを利用）
+                // 絶対パスでactionセット（urlヘルパー利用）
                 document.getElementById('edit-form').action =
                     "{{ url('/trade-message') }}/" + el.dataset.id;
             });
@@ -254,6 +271,23 @@
         // メッセージ送信後の入力欄クリア（form.resetで値リセット）
         document.getElementById('chat-form').addEventListener('submit', function() {
             setTimeout(() => this.reset(), 100); // 送信後クリア
+        });
+
+        // 画像選択時のプレビュー表示
+        document.getElementById('image-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('chat-image-preview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
         });
     </script>
 </body>
