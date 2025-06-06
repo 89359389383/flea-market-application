@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="profile-header">
-    <div class="profile-info">
+    <div class="profile-info-flex">
         <!-- プロフィール画像 -->
         <div class="avatar">
             @if (Auth::user()->profile_image)
@@ -17,37 +17,26 @@
             <img src="" alt="" class="avatar-img" style="display: none;">
             @endif
         </div>
-        <h1 class="username">{{ Auth::user()->name }}</h1>
-        {{-- ▼ 評価平均表示（評価がある場合のみ） --}}
-        @if (isset($evaluations_count) && $evaluations_count > 0)
-        @php $avg = round($average_score); @endphp
-        <div class="rating" style="margin-top:10px;">
-            @for ($i = 1; $i <= 5; $i++)
-                <span class="star {{ $i <= $avg ? 'filled' : 'empty' }}">★</span>
-                @endfor
-                <span style="margin-left:8px;">
-                    ({{ round($average_score) }} / 5) 評価{{ $evaluations_count }}件
-                </span>
+        <!-- 名前＋評価（縦並び） -->
+        <div class="profile-text-group">
+            <h1 class="username">{{ Auth::user()->name }}</h1>
+            {{-- ▼ 評価平均表示（評価がある場合のみ） --}}
+            @if (isset($evaluations_count) && $evaluations_count > 0)
+            @php $avg = round($average_score); @endphp
+            <div class="rating" style="margin-top:6px;">
+                @for ($i = 1; $i <= 5; $i++)
+                    <span class="star {{ $i <= $avg ? 'filled' : 'empty' }}">★</span>
+                    @endfor
+            </div>
+            @endif
         </div>
-        @endif
     </div>
     <a href="{{ route('user.edit') }}" class="edit-button">プロフィールを編集</a>
 </div>
 
 @php
+// タブの判定（クエリパラメータ or デフォルトは 'sell'）
 $tab = request()->query('page', $tab ?? 'sell');
-
-$user = Auth::user();
-$unread_messages_total = 0;
-
-if (isset($trades) && $trades instanceof \Illuminate\Support\Collection) {
-$unread_messages_total = $trades->sum(function ($trade) use ($user) {
-return $trade->messages()
-->where('user_id', '!=', $user->id)
-->where('is_read', false)
-->count();
-});
-}
 @endphp
 
 <nav class="tabs">
@@ -55,11 +44,11 @@ return $trade->messages()
         class="tab move-right {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
     <a href="{{ route('user.show', ['page' => 'buy']) }}"
         class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
-    <!-- ▼ tradingタブ：未読メッセージの合計件数を表示 -->
+    <!-- ▼ tradingタブ：未読メッセージの合計件数を常に表示 -->
     <a href="{{ route('user.show', ['page' => 'trading']) }}"
         class="tab {{ $tab == 'trading' ? 'active' : '' }}">
         取引中の商品
-        @if ($unread_messages_total > 0)
+        @if (isset($unread_messages_total) && $unread_messages_total > 0)
         <span class="tab-badge">{{ $unread_messages_total }}</span>
         @endif
     </a>
@@ -86,7 +75,7 @@ return $trade->messages()
     @php
     // 未読メッセージ数（自分以外から、かつ未読）
     $unread_count = $trade->messages()
-    ->where('user_id', '!=', $user->id)
+    ->where('user_id', '!=', Auth::id())
     ->where('is_read', false)
     ->count();
     // 総メッセージ件数
@@ -96,7 +85,6 @@ return $trade->messages()
         <a href="{{ route('trade.chat.show', $trade->id) }}">
             <div class="image-container" style="position:relative;">
                 <img src="{{ filter_var($trade->item->image, FILTER_VALIDATE_URL) ? $trade->item->image : Storage::url($trade->item->image) }}" class="product-image">
-                <div class="trading-label">取引中</div>
                 @if ($unread_count > 0)
                 <div class="notification-badge" style="position:absolute;top:0;left:0;">
                     {{ $unread_count }}
@@ -105,7 +93,6 @@ return $trade->messages()
             </div>
             <div class="product-info">
                 <span class="product-name">{{ $trade->item->name }}</span>
-                <span class="message-count" style="margin-left:8px; font-size:12px;">メッセージ: {{ $total_count }}</span>
             </div>
         </a>
     </div>
