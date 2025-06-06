@@ -36,17 +36,17 @@
 
 @php
 $tab = request()->query('page', $tab ?? 'sell');
-// ▼ tradingタブの未読通知バッジ件数
+
 $user = Auth::user();
-$unread_trades_count = 0;
+$unread_messages_total = 0;
+
 if (isset($trades) && $trades instanceof \Illuminate\Support\Collection) {
-$unread_trades_count = $trades->filter(function($trade) use ($user) {
-// 「自分以外」から「未読」が1件でもあればカウント
+$unread_messages_total = $trades->sum(function ($trade) use ($user) {
 return $trade->messages()
 ->where('user_id', '!=', $user->id)
 ->where('is_read', false)
-->count() > 0;
-})->count();
+->count();
+});
 }
 @endphp
 
@@ -55,12 +55,12 @@ return $trade->messages()
         class="tab move-right {{ $tab == 'sell' ? 'active' : '' }}">出品した商品</a>
     <a href="{{ route('user.show', ['page' => 'buy']) }}"
         class="tab {{ $tab == 'buy' ? 'active' : '' }}">購入した商品</a>
-    <!-- ▼ tradingタブ：未読があればバッジ -->
+    <!-- ▼ tradingタブ：未読メッセージの合計件数を表示 -->
     <a href="{{ route('user.show', ['page' => 'trading']) }}"
         class="tab {{ $tab == 'trading' ? 'active' : '' }}">
         取引中の商品
-        @if ($unread_trades_count > 0)
-        <span class="tab-badge">{{ $unread_trades_count }}</span>
+        @if ($unread_messages_total > 0)
+        <span class="tab-badge">{{ $unread_messages_total }}</span>
         @endif
     </a>
 </nav>
