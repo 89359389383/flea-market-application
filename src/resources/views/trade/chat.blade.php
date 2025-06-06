@@ -177,8 +177,10 @@
         {{-- 新規投稿フォーム --}}
         <form action="{{ route('trade.message.store', $trade->id) }}" method="POST" enctype="multipart/form-data" class="input-section" id="chat-form">
             @csrf
-            <input type="text" class="message-input" name="body" value="{{ old('body', session('chat_body_' . $trade->id)) }}" maxlength="400" placeholder="取引メッセージを記入してください" required>
-            <input type="file" name="image" accept="image/png,image/jpeg" style="display:none;" id="image-input">
+            <input type="text" class="message-input" name="body" id="chat-body"
+                value="{{ session('chat_body_' . $trade->id, old('body')) }}"
+                placeholder="取引メッセージを記入してください">
+            <input type="file" name="image" style="display:none;" id="image-input">
             <button type="button" class="add-image-btn" onclick="document.getElementById('image-input').click();">画像を追加</button>
             <button class="send-btn" aria-label="送信">送信</button>
             {{-- 画像プレビュー用 --}}
@@ -197,8 +199,13 @@
         <div id="edit-modal" style="display:none;position:fixed;top:20%;left:0;right:0;z-index:20;background:rgba(0,0,0,.2);">
             <div style="background:#fff;margin:0 auto;padding:25px;border-radius:10px;width:320px;">
                 <form method="POST" id="edit-form">
-                    @csrf @method('PUT')
-                    <textarea name="body" id="edit-body" maxlength="400" required style="width:100%;height:70px;"></textarea>
+                    @csrf
+                    @method('PUT')
+                    {{-- ▼ エラーメッセージ表示（body） --}}
+                    @error('body')
+                    <p class="error-message" style="color:red;">{{ $message }}</p>
+                    @enderror
+                    <textarea name="body" id="edit-body" style="width:100%;height:70px;" required maxlength="400">{{ old('body') }}</textarea>
                     <button type="submit" class="send-btn" style="width:100%;">編集して送信</button>
                     <button type="button" onclick="document.getElementById('edit-modal').style.display='none'" style="margin-top:6px;width:100%;">キャンセル</button>
                 </form>
@@ -288,6 +295,28 @@
                 preview.src = '';
                 preview.style.display = 'none';
             }
+        });
+
+        // ▼ 追加：ローカルストレージで本文の入力保持機能 ▼
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('chat-body');
+            const key = 'chat_body_{{ $trade->id }}';
+
+            // 入力時にローカルストレージに保存
+            input.addEventListener('input', function() {
+                localStorage.setItem(key, input.value);
+            });
+
+            // ページ読み込み時に復元
+            if (localStorage.getItem(key)) {
+                input.value = localStorage.getItem(key);
+            }
+
+            // 送信時にローカルストレージをクリア
+            document.getElementById('chat-form').addEventListener('submit', function() {
+                localStorage.removeItem(key);
+                setTimeout(() => input.value = '', 100);
+            });
         });
     </script>
 </body>
