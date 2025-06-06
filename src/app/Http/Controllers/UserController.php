@@ -22,40 +22,75 @@ class UserController extends Controller
         Log::debug('[UserController@show] メソッド開始');
 
         $user = auth()->user();
-        Log::debug('[UserController@show] ログインユーザー取得', ['user_id' => $user->id, 'user_name' => $user->name, 'email' => $user->email]);
+        Log::debug('[UserController@show] ログインユーザー取得', [
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'email' => $user->email,
+        ]);
 
         $tab = $request->query('page', 'sell');
         Log::debug('[UserController@show] クエリパラメータ page=', ['page' => $tab]);
 
-        // ★追加：評価平均と評価数（常に渡す。評価0の場合はBlade側で非表示）
+        // 評価平均と評価数
         $average_score = $user->evaluationsReceived()->avg('score');
         $evaluations_count = $user->evaluationsReceived()->count();
+        Log::debug('[UserController@show] 評価平均と評価数取得', [
+            'average_score' => $average_score,
+            'evaluations_count' => $evaluations_count,
+        ]);
+
+        // 取引中商品のトレード一覧を取得（未読メッセージ数計算用）
+        $trades_for_unread = Trade::with('messages')
+            ->where('is_completed', false)
+            ->where(function ($query) use ($user) {
+                $query->where('seller_id', $user->id)
+                    ->orWhere('buyer_id', $user->id);
+            })
+            ->get();
+
+        Log::debug('[UserController@show] 取引中商品の取得（未読計算用）', [
+            'count' => $trades_for_unread->count(),
+            'trade_ids' => $trades_for_unread->pluck('id')->toArray(),
+        ]);
+
+        // 未読メッセージ総数計算
+        $unread_messages_total = 0;
+        foreach ($trades_for_unread as $trade) {
+            $unread_count = $trade->messages()
+                ->where('user_id', '!=', $user->id)
+                ->where('is_read', false)
+                ->count();
+            Log::debug('[UserController@show] 取引ごとの未読メッセージ数', [
+                'trade_id' => $trade->id,
+                'unread_count' => $unread_count,
+            ]);
+            $unread_messages_total += $unread_count;
+        }
+        Log::debug('[UserController@show] 未読メッセージ合計', ['unread_messages_total' => $unread_messages_total]);
 
         if ($tab === 'trading') {
             Log::debug('[UserController@show] 取引中商品の一覧を取得開始');
 
-            // ★修正：新着メッセージ（最新日時）で自動ソート
             $trades = Trade::with(['item', 'seller', 'buyer', 'messages'])
                 ->where('is_completed', false)
                 ->where(function ($query) use ($user) {
-                    Log::debug('[UserController@show][Trade Query] 売り手か買い手がログインユーザーである条件設定', ['user_id' => $user->id]);
+                    Log::debug('[UserController@show][Trade Query] 売り手か買い手がログインユーザー', ['user_id' => $user->id]);
                     $query->where('seller_id', $user->id)
                         ->orWhere('buyer_id', $user->id);
                 })
-                // ▼最新メッセージ日時で並べる（なければtradeのupdated_at）
-                ->withMax('messages', 'created_at') // messages_max_created_at カラムを付与
+                ->withMax('messages', 'created_at')
                 ->orderByDesc(DB::raw('COALESCE(messages_max_created_at, trades.updated_at)'))
                 ->get();
 
-            Log::debug('[UserController@show] 取引中商品の取得完了', ['count' => $trades->count()]);
-            Log::debug('[UserController@show] 取引中商品のIDリスト', ['trade_ids' => $trades->pluck('id')->toArray()]);
+            Log::debug('[UserController@show] 取引中商品の取得完了', ['count' => $trades->count(), 'trade_ids' => $trades->pluck('id')->toArray()]);
 
             return view('user.show', [
                 'user' => $user,
                 'trades' => $trades,
                 'tab' => $tab,
-                'average_score' => $average_score,     // ★追加
-                'evaluations_count' => $evaluations_count, // ★追加
+                'average_score' => $average_score,
+                'evaluations_count' => $evaluations_count,
+                'unread_messages_total' => $unread_messages_total,
             ]);
         }
 
@@ -68,8 +103,7 @@ class UserController extends Controller
                 ->orderBy('updated_at', 'desc')
                 ->get();
 
-            Log::debug('[UserController@show] 購入済み商品のTrade取得完了', ['count' => $trades->count()]);
-            Log::debug('[UserController@show] 購入済みTradeのIDリスト', ['trade_ids' => $trades->pluck('id')->toArray()]);
+            Log::debug('[UserController@show] 購入済み商品のTrade取得完了', ['count' => $trades->count(), 'trade_ids' => $trades->pluck('id')->toArray()]);
 
             $items = $trades->map(function ($trade) {
                 Log::debug('[UserController@show][map] Tradeからitemを取得', ['trade_id' => $trade->id, 'item_id' => optional($trade->item)->id]);
@@ -82,8 +116,9 @@ class UserController extends Controller
                 'user' => $user,
                 'tab' => $tab,
                 'items' => $items,
-                'average_score' => $average_score,     // ★追加
-                'evaluations_count' => $evaluations_count, // ★追加
+                'average_score' => $average_score,
+                'evaluations_count' => $evaluations_count,
+                'unread_messages_total' => $unread_messages_total,
             ]);
         }
 
@@ -97,8 +132,9 @@ class UserController extends Controller
             'user' => $user,
             'tab' => $tab,
             'items' => $items,
-            'average_score' => $average_score,     // ★追加
-            'evaluations_count' => $evaluations_count, // ★追加
+            'average_score' => $average_score,
+            'evaluations_count' => $evaluations_count,
+            'unread_messages_total' => $unread_messages_total,
         ]);
     }
 
