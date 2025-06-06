@@ -40,22 +40,6 @@
             border-radius: 50%;
         }
 
-        .product-image-thumb {
-            width: 60px;
-            height: 60px;
-            border-radius: 6px;
-            object-fit: cover;
-        }
-
-        .sidebar {
-            width: 200px;
-            float: left;
-        }
-
-        .main-content {
-            margin-left: 220px;
-        }
-
         .star.active {
             color: gold;
         }
@@ -88,8 +72,7 @@
         @endphp
         <form action="{{ route('trade.chat.show', $other->id) }}" method="get" style="margin-bottom:6px;">
             <button class="product-button @if($other->id === $trade->id) active @endif" type="submit">
-                <img src="{{ filter_var($other->item->image, FILTER_VALIDATE_URL) ? $other->item->image : Storage::url($other->item->image) }}" class="product-image-thumb">
-                <div>{{ $other->item->name }}</div>
+                <div class="product-name">{{ $other->item->name }}</div>
                 @if($unread)
                 <span class="badge">{{ $unread }}</span>
                 @endif
@@ -101,7 +84,9 @@
     <div class="main-content">
         <div class="header" style="display:flex;align-items:center;">
             <div class="avatar">
-                <img src="{{ asset('storage/' . ($partner->profile_image ?? 'default.png')) }}" class="avatar-img" alt="">
+                @if (!empty($partner->profile_image))
+                <img src="{{ asset('storage/' . $partner->profile_image) }}" class="avatar-img" alt="">
+                @endif
             </div>
             <h1 class="header-title" style="margin-left:15px;">
                 「{{ $partner->name }}」さんとの取引画面
@@ -113,7 +98,7 @@
                 <img src="{{ filter_var($trade->item->image, FILTER_VALIDATE_URL) ? $trade->item->image : Storage::url($trade->item->image) }}" class="product-image-thumb" alt="商品画像">
             </div>
             <div class="product-info" style="margin-left:15px;">
-                <div class="product-name">{{ $trade->item->name }}</div>
+                <div class="trade-chat-item-name">{{ $trade->item->name }}</div>
                 <div class="product-price">¥{{ number_format($trade->item->price) }}</div>
             </div>
         </div>
@@ -125,7 +110,9 @@
             <div class="user-message">
                 <div class="user-message-header" style="display:flex;justify-content:flex-end;align-items:center;">
                     <span class="username">{{ $msg->user->name }}</span>
-                    <img src="{{ asset('storage/' . ($msg->user->profile_image ?? 'default.png')) }}" class="avatar-img" style="margin-left:5px;" alt="">
+                    @if (!empty($msg->user->profile_image))
+                    <img src="{{ asset('storage/' . $msg->user->profile_image) }}" class="avatar-img" style="margin-left:5px;" alt="">
+                    @endif
                 </div>
                 <div class="message-bubble">
                     {{ $msg->body }}
@@ -145,7 +132,9 @@
             @else
             <div class="partner-message">
                 <div class="message-header" style="display:flex;align-items:center;">
-                    <img src="{{ asset('storage/' . ($msg->user->profile_image ?? 'default.png')) }}" class="avatar-img" alt="">
+                    @if (!empty($msg->user->profile_image))
+                    <img src="{{ asset('storage/' . $msg->user->profile_image) }}" class="avatar-img" alt="">
+                    @endif
                     <span class="username" style="margin-left:5px;">{{ $msg->user->name }}</span>
                 </div>
                 <div class="message-bubble">
@@ -182,7 +171,12 @@
                 placeholder="取引メッセージを記入してください">
             <input type="file" name="image" style="display:none;" id="image-input">
             <button type="button" class="add-image-btn" onclick="document.getElementById('image-input').click();">画像を追加</button>
-            <button class="send-btn" aria-label="送信">送信</button>
+            <button type="submit" class="send-btn" aria-label="送信">
+                <svg class="send-icon" viewBox="0 0 40 40">
+                    <polygon points="5,35 35,20 5,5 5,18 27,20 5,22"
+                        style="fill:none;stroke:#888;stroke-width:2" />
+                </svg>
+            </button>
             {{-- 画像プレビュー用 --}}
             <div class="image-preview" style="margin-top: 8px;">
                 <img id="chat-image-preview" style="display:none; max-width:100px; max-height:100px;" alt="画像プレビュー">

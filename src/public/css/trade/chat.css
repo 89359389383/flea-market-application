@@ -12,32 +12,34 @@ body {
 }
 
 .sidebar {
-    width: 200px;
+    width: 20%;
     background-color: #888;
     padding: 20px;
     color: white;
 }
 
 .sidebar h2 {
-    font-size: 16px;
-    margin-bottom: 20px;
-    font-weight: normal;
+    font-size: 30px;
+    margin-bottom: 40px;
+    letter-spacing: 5px;
+    text-align: center;
 }
 
 .product-button {
-    width: 100%;
+    width: 90%;
     padding: 8px 12px;
-    margin-bottom: 10px;
-    background-color: #ddd;
+    margin-bottom: 40px;
+    background-color: #edebeb;
     border: none;
     border-radius: 4px;
     color: #333;
     font-size: 14px;
     cursor: pointer;
-}
-
-.product-button:hover {
-    background-color: #ccc;
+    /* ここから追加 */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    /* ここまで追加 */
 }
 
 .main-content {
@@ -48,35 +50,34 @@ body {
 }
 
 .header {
-    padding: 20px;
-    border-bottom: 1px solid #ddd;
+    padding: 15px 30px;
+    border-bottom: 1px solid #000000;
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     background-color: #ccc;
 }
 
 .header-title {
-    font-size: 18px;
-    font-weight: normal;
+    font-size: 32px;
 }
 
 .product-section {
-    padding: 20px;
-    border-bottom: 1px solid #ddd;
+    padding: 10px 30px;
+    border-bottom: 1px solid #000000;
     display: flex;
     gap: 20px;
 }
 
 .product-image {
-    width: 160px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
     background-color: #ccc;
     border-radius: 4px;
     display: flex;
@@ -86,19 +87,29 @@ body {
     font-size: 14px;
 }
 
+.product-image-thumb {
+    width: 180px;
+    height: 180px;
+}
+
 .product-info {
     flex: 1;
 }
 
 .product-name {
-    font-size: 24px;
+    font-size: 16px;
     font-weight: bold;
-    margin-bottom: 20px;
+}
+
+.trade-chat-item-name {
+    font-size: 30px;
+    font-weight: bold;
 }
 
 .product-price {
-    font-size: 16px;
+    font-size: 28px;
     color: #666;
+    margin-top: 15px;
 }
 
 .chat-section {
@@ -180,7 +191,6 @@ body {
 
 .input-section {
     padding: 20px;
-    border-top: 1px solid #ddd;
     display: flex;
     gap: 10px;
     align-items: center;
@@ -188,8 +198,8 @@ body {
 
 .message-input {
     flex: 1;
-    padding: 12px;
-    border: 1px solid #ddd;
+    padding: 10px 16px;
+    border: 1px solid #000000;
     border-radius: 4px;
     font-size: 14px;
     outline: none;
@@ -199,19 +209,21 @@ body {
     border-color: #007bff;
 }
 
-.add-image-btn {
-    padding: 8px 16px;
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    white-space: nowrap;
+.message-input::placeholder {
+    color: #5f5f5f;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
-.add-image-btn:hover {
-    background-color: #ff5252;
+.add-image-btn {
+    padding: 6px 16px;
+    background-color: #ffffff;
+    color: rgb(255, 0, 0);
+    border: 3px solid #ff0000;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .send-btn {
@@ -226,9 +238,11 @@ body {
 }
 
 .send-icon {
-    width: 24px;
-    height: 24px;
+    width: 40px;
+    height: 40px;
     fill: #666;
+    transform: rotate(-30deg);
+    margin-bottom: 15px;
 }
 
 .send-btn:hover .send-icon {
