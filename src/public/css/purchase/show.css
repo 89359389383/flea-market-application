@@ -41,6 +41,12 @@
     flex-shrink: 0;
 }
 
+product-image-thumb {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
 .product-info {
     margin-left: 28px;
 }
