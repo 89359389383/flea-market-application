@@ -159,7 +159,7 @@
                     {{ $msg->body }}
                     @if($msg->image_path)
                     <br>
-                    <img src="{{ Storage::url($msg->image_path) }}" style="max-width:100px;" alt="添付画像">
+                    <img src="{{ Storage::url($msg->image_path) }}" class="chat-image-thumb" alt="添付画像">
                     @endif
                 </div>
             </div>
