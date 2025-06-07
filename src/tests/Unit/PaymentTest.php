@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,7 +14,7 @@ class PaymentTest extends TestCase
     /**
      * ✅ 1. 「コンビニ払い」を選択したときに、サイドバーに正しく反映されることを確認するテスト
      */
-    public function it_displays_convenience_store_payment_in_sidebar()
+    public function test_displays_convenience_store_payment_in_sidebar()
     {
         // 1. ユーザーを作成
         User::factory()->create([
@@ -54,7 +54,7 @@ class PaymentTest extends TestCase
     /**
      * ✅ 2. 「カード払い」を選択したときに、サイドバーに正しく反映されることを確認するテスト
      */
-    public function it_displays_card_payment_in_sidebar()
+    public function test_displays_card_payment_in_sidebar()
     {
         // 1. ユーザーを作成
         User::factory()->create([
