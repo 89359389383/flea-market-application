@@ -65,4 +65,4 @@
 
 ## ER 図
 
-![ER Diagram](docs/フリマ模擬案件ER図.png)
+![ER Diagram](docs/フリマアプリER図.png)
