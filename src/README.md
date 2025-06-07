@@ -17,7 +17,8 @@
     ※.env ファイルの DB_DATABASE、DB_USERNAME、DB_PASSWORD の値を docker-compose.yml に記載の値に変更
 4.  php artisan key:generate
 5.  php artisan migrate
-6.  php artisan db:seed
+6.  php artisan db:seed<br>
+    ※ログインの際必要なデータは database\seeders\UsersTableSeeder.php に記載
 7.  php artisan storage:link
 
 ## 使用技術
@@ -27,7 +28,9 @@
 -   MySQL: 8.0.26
 -   mailhog
 
-## 機能補足（商品購入機能）
+## 機能補足
+
+① 商品購入時の所作
 
 -   購入機能について基本要件と応用要件を両立させるため、商品購入ページにて<br>コンビニ払いを選択して購入する → そのまま Sold 処理が実行される<br>カード払いを選択して購入する →stripe の決済画面に移動する
 -   stripe の決済画面に移動できるようにするため.env ファイルの<br>
@@ -40,6 +43,11 @@
     セキュリティコード 123<br>
     メールアドレス sample@stripe.com
     カード保有者の名前 Test User
+
+② 商品購入～取引完了におけるプロフィール画面における商品表示の流れ<br>
+
+1.  商品購入後(出品者購入者いずれの場合でも)取引中の商品に追加表示される<br>
+2.  出品者購入者双方評価を送信して取引完了後<br> -購入者側 → 取引中の商品から購入した商品に移動<br> -出品者側 → 取引中の商品から表示が消える
 
 ## テストコード補足
 
