@@ -64,6 +64,24 @@ body {
     background-color: #ccc;
 }
 
+.avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.send-button {
+    padding: 8px 18px;
+    border-radius: 18px;
+    background: #ff8888;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
 .header-title {
     font-size: 32px;
 }
@@ -247,4 +265,307 @@ body {
 
 .send-btn:hover .send-icon {
     fill: #007bff;
+}
+
+.comment {
+    margin-bottom: 16px;
+}
+
+.comment-content {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.comment-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #e2e2e2;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comment-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.comment-username {
+    font-size: 22px;
+    font-weight: bold;
+    margin-left: 20px;
+}
+
+.comment-text {
+    background-color: #e2e2e2;
+    padding: 10px;
+    border-radius: 4px;
+    width: 40%;
+    font-size: 16px;
+}
+
+/* コメント風右寄せ用 */
+.user-message.comment {
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 16px;
+}
+
+.user-message .comment-content {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    margin-bottom: 10px;
+}
+
+.user-message .comment-avatar {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.user-message .comment-username {
+    margin-right: 20px;
+    margin-left: 0;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: right;
+}
+
+.user-message .user-comment-text {
+    background-color: #e2e2e2;
+    margin-left: 0;
+    margin-right: 0;
+    width: 40%;
+    font-size: 16px;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: left;
+}
+
+.user-message .message-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    width: 40%;
+    margin-top: 6px;
+    margin-right: 0;
+}
+
+.message-edit {
+    color: #a4a4a4;
+    font-weight: bold;
+    margin-right: 16px;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    text-shadow: 2px 2px 5px #ccc;
+}
+
+.message-delete {
+    color: #a4a4a4;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    margin-right: 18px;
+    text-shadow: 2px 2px 5px #ccc;
+}
+
+.chat-image-thumb {
+    max-width: 160px;
+    max-height: 160px;
+    border-radius: 10px;
+    object-fit: cover;
+    display: block;
+    margin: 0px auto;
+}
+
+/* 編集用モーダル背景 */
+.edit-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 編集モーダルの内容部分を中央に配置 */
+.edit-modal-content {
+    background: #fff;
+    border-radius: 10px;
+    margin: 0 auto;
+    padding: 25px 20px;
+    width: 500px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.edit-modal-textarea {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 18px;
+    padding: 8px;
+    margin-bottom: 12px;
+}
+
+.edit-modal-submit {
+    width: 100%;
+    background: #36a2e6;
+    color: #fff;
+    font-size: 18px;
+    padding: 9px 0;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.edit-modal-cancel {
+    width: 100%;
+    background: #eee;
+    color: #666;
+    font-size: 18px;
+    padding: 9px 0;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.edit-modal-cancel:hover {
+    background: #e3e3e3;
+}
+
+/* ----- 取引完了モーダル中央表示・デザイン統一 ----- */
+#complete-modal.transaction-complete {
+    display: none;
+    /* ← JSでdisplay:blockにすると下が効く */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    /* ここから中央寄せ用flex指定！ */
+    display: flex;
+    justify-content: center;
+    /* 左右中央 */
+    align-items: center;
+    /* 上下中央 */
+}
+
+#complete-modal .transaction-complete-content {
+    max-width: 420px;
+    width: 90vw;
+    background: #fffbe6;
+    border: 1px solid #e0dcc8;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 4px 24px rgba(90,80,60,0.15);
+    animation: popin .25s;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes popin {
+    0% { transform: scale(0.95); opacity: 0;}
+    100% { transform: scale(1); opacity: 1;}
+}
+
+#complete-modal .complete-header {
+    font-size: 26px;
+    text-align: center;
+    padding: 18px;
+    border-bottom: 1px solid #000000;
+    background: #fffdf1;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+#complete-modal .rating-section {
+    padding: 28px 20px 16px 20px;
+    text-align: center;
+    border-bottom: 1px solid #000000;
+    background: #fffdf1;
+}
+
+#complete-modal .rating-question {
+    color: #777;
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: normal;
+}
+
+#complete-modal .star-rating {
+    display: flex;
+    justify-content: center;
+}
+
+#complete-modal .star {
+    font-size: 75px;
+    color: #ddd;
+    transition: color .2s;
+    cursor: pointer;
+}
+
+#complete-modal .star.active {
+    color: #ffdd00;
+}
+
+#complete-modal .button-section {
+    padding: 18px 20px 18px 20px;
+    text-align: center;
+    background: #fffdf1;
+}
+
+#complete-modal .send-button {
+    background-color: #ff9a9e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 22px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 1px 5px #ffeaea88;
+    margin-right: 10px;
+    transition: background .2s;
+}
+
+#complete-modal .send-button:hover {
+    background: #f07178;
+}
+
+#complete-modal .cancel-button {
+    background: #fff;
+    color: #888;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px 22px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    transition: background .2s;
+}
+
+@media (max-width: 600px) {
+    #complete-modal .transaction-complete-content {max-width: 98vw; width: 98vw;}
+    #complete-modal .button-section, #complete-modal .rating-section, #complete-modal .complete-header {padding-left:10px; padding-right:10px;}
 }
