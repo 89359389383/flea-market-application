@@ -1,64 +1,13 @@
-<!DOCTYPE html>
-<html lang="ja">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>取引チャット</title>
-    <link rel="stylesheet" href="{{ asset('css/trade/chat.css') }}">
-    <style>
-        /* 必要な部分だけ抜粋 */
-        .user-message {
-            text-align: right;
-            margin-left: auto;
-        }
+@section('title', 'COACHTECHフリマ - 取引チャットページ')
 
-        .partner-message {
-            text-align: left;
-            margin-right: auto;
-        }
+@section('css')
+<link rel="stylesheet" href="{{ asset('css/trade/chat.css') }}" />
+@endsection
 
-        /* 画像プレビュー周りのスタイル */
-        .image-preview {
-            margin-top: 8px;
-            position: relative;
-            display: inline-block;
-            /* サイズに合わせて */
-        }
-
-        #chat-image-preview {
-            display: none;
-            max-width: 160px;
-            max-height: 160px;
-            border-radius: 10px;
-        }
-
-        #remove-preview-btn {
-            display: none;
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #fff;
-            color: #888;
-            border: none;
-            font-size: 20px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            box-shadow: 0 2px 6px #aaa;
-            cursor: pointer;
-            line-height: 0;
-            padding: 0;
-        }
-
-        #remove-preview-btn:hover {
-            background: #ffdddd;
-            color: #e00;
-        }
-    </style>
-</head>
-
-<body>
+@section('content')
+<div class="container">
     <div class="sidebar">
         <h2>その他の取引</h2>
         @foreach($other_trades as $other)
@@ -80,7 +29,7 @@
 
     <div class="main-content">
         {{-- ヘッダー --}}
-        <div class="header" style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="trade-chat-header" style="display:flex; align-items:center; justify-content:space-between;">
             <div style="display:flex; align-items:center;">
                 <div class="avatar">
                     @if (!empty($partner->profile_image))
@@ -321,6 +270,9 @@
                 });
             });
         </script>
-</body>
+        </body>
 
-</html>
+        </html>
+    </div>
+</div>
+@endsection
