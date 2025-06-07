@@ -179,9 +179,9 @@
     font-size: 20px;
     font-weight: bold;
     white-space: nowrap;
-        /* テキストを改行させない */
+    /* テキストを改行させない */
     display: block;
-            /* ブロック要素として表示 */
+    /* ブロック要素として表示 */
 }
 
 .info-category-value {
@@ -247,7 +247,7 @@
     flex-grow: 1;
     margin-bottom: 20px;
     align-items: flex-start;
-        /* 左寄せ */
+    /* 左寄せ */
 }
 
 .comment-text {
