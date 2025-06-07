@@ -163,8 +163,8 @@ header-right {
 }
 
 .header-button {
-    margin-right: 60px;
     padding: 0.3rem 10px;
+    margin-right: 0px;
     font-size: 20px;
 }
 }
@@ -223,8 +223,8 @@ header-right {
     }
 
     .header-button {
-        margin-right: 60px;
         padding: 0.3rem 10px;
+        margin-right: 0px;
         font-size: 20px;
     }
 }

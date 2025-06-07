@@ -212,6 +212,7 @@ body {
     .edit-button {
         font-size: 18px;
         padding: 6px 20px;
+        margin-top: 20px;
     }
 
     .tabs {
@@ -221,6 +222,7 @@ body {
 
     .tabs .move-right {
         margin-left: 0;
+        font-size: 16px;
     }
 
     .tab {
@@ -256,7 +258,6 @@ body {
     }
 
     .tabs {
-        flex-direction: column;
         align-items: center;
         gap: 10px;
     }
