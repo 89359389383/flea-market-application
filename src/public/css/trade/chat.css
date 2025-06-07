@@ -4,11 +4,13 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f5f5f5;
+.container {
     height: 100vh;
-    display: flex;
+    display: flex
+}
+
+.main-content {
+    width: 80%;
 }
 
 .sidebar {
@@ -49,12 +51,13 @@ body {
     flex-direction: column;
 }
 
-.header {
+.trade-chat-header {
     padding: 15px 30px;
     border-bottom: 1px solid #000000;
     display: flex;
     align-items: center;
     gap: 15px;
+    background-color: white;
 }
 
 .avatar {
@@ -479,15 +482,22 @@ body {
     border-radius: 10px;
     overflow: hidden;
     margin: 0 auto;
-    box-shadow: 0 4px 24px rgba(90,80,60,0.15);
+    box-shadow: 0 4px 24px rgba(90, 80, 60, 0.15);
     animation: popin .25s;
     display: flex;
     flex-direction: column;
 }
 
 @keyframes popin {
-    0% { transform: scale(0.95); opacity: 0;}
-    100% { transform: scale(1); opacity: 1;}
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 #complete-modal .complete-header {
@@ -567,8 +577,17 @@ body {
 }
 
 @media (max-width: 600px) {
-    #complete-modal .transaction-complete-content {max-width: 98vw; width: 98vw;}
-    #complete-modal .button-section, #complete-modal .rating-section, #complete-modal .complete-header {padding-left:10px; padding-right:10px;}
+    #complete-modal .transaction-complete-content {
+        max-width: 98vw;
+        width: 98vw;
+    }
+
+    #complete-modal .button-section,
+    #complete-modal .rating-section,
+    #complete-modal .complete-header {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 }
 
 /* ===================== レスポンシブ（PC/タブレット/スマホ対応） ===================== */
@@ -581,22 +600,30 @@ body {
         max-width: 320px;
         /* PCでサイドバーをしっかり見せる */
     }
+
     .main-content {
         padding-left: 0;
     }
+
     .product-section {
         flex-direction: row;
         gap: 20px;
         align-items: center;
     }
-    .product-image, .product-image-thumb {
+
+    .product-image,
+    .product-image-thumb {
         width: 180px;
         height: 180px;
     }
+
     .header-title {
         font-size: 32px;
     }
-    #complete-modal .star { font-size: 75px; }
+
+    #complete-modal .star {
+        font-size: 75px;
+    }
 }
 
 /* ② 768px～850px：タブレット */
@@ -608,56 +635,73 @@ body {
         font-size: 14px;
         padding: 10px;
     }
+
     .sidebar h2 {
         font-size: 22px;
         margin-bottom: 24px;
     }
+
     .product-button {
         margin-bottom: 24px;
         font-size: 13px;
         padding: 8px 6px;
     }
+
     .main-content {
         padding-left: 0;
     }
+
     .header {
         padding: 12px 16px;
         gap: 10px;
     }
-    .avatar, .avatar-img {
+
+    .avatar,
+    .avatar-img {
         width: 56px;
         height: 56px;
     }
+
     .header-title {
         font-size: 21px;
     }
+
     .product-section {
         flex-direction: row;
         gap: 12px;
         padding: 8px 10px;
     }
-    .product-image, .product-image-thumb {
+
+    .product-image,
+    .product-image-thumb {
         width: 90px;
         height: 90px;
     }
+
     .trade-chat-item-name {
         font-size: 20px;
     }
+
     .product-price {
         font-size: 16px;
         margin-top: 8px;
     }
+
     .chat-section {
         padding: 10px;
     }
-    .comment-avatar, .comment-avatar-img {
+
+    .comment-avatar,
+    .comment-avatar-img {
         width: 55px;
         height: 55px;
     }
+
     .comment-username {
         font-size: 14px;
         margin-left: 8px;
     }
+
     .comment-text,
     .user-message .user-comment-text,
     .user-message .message-actions {
@@ -666,10 +710,19 @@ body {
         min-width: unset;
         padding: 6px;
     }
+
     /* モーダル評価用星サイズも縮小 */
-    #complete-modal .star { font-size: 70px; }
-    #complete-modal .transaction-complete-content { max-width: 95vw; }
-    #complete-modal .complete-header, #complete-modal .rating-section, #complete-modal .button-section {
+    #complete-modal .star {
+        font-size: 70px;
+    }
+
+    #complete-modal .transaction-complete-content {
+        max-width: 95vw;
+    }
+
+    #complete-modal .complete-header,
+    #complete-modal .rating-section,
+    #complete-modal .button-section {
         padding-left: 6px;
         padding-right: 6px;
     }
@@ -677,7 +730,7 @@ body {
 
 /* ③ 767px以下：スマホ */
 @media (max-width: 767px) {
-    body {
+    .container {
         flex-direction: column;
         height: auto;
     }
@@ -691,17 +744,20 @@ body {
         border-top: 1px solid #ccc;
         background: #888;
     }
+
     .sidebar h2 {
         font-size: 18px;
         margin-bottom: 12px;
         letter-spacing: 1px;
     }
+
     .product-button {
         width: 80%;
         margin-bottom: 12px;
         font-size: 12px;
         padding: 6px 4px;
     }
+
     .main-content {
         padding-left: 0;
         padding-right: 0;
@@ -709,30 +765,38 @@ body {
         min-width: unset;
         border: none;
     }
+
     .header {
         flex-direction: column;
         gap: 8px;
         padding: 10px 8px;
         align-items: flex-start;
     }
-    .avatar, .avatar-img {
+
+    .avatar,
+    .avatar-img {
         width: 40px;
         height: 40px;
     }
+
     .header-title {
         font-size: 20px;
         margin: 0;
     }
+
     .product-section {
         flex-direction: column;
         gap: 4px;
         padding: 7px 3vw;
     }
-    .product-image, .product-image-thumb {
+
+    .product-image,
+    .product-image-thumb {
         max-width: 200px;
         max-height: 350px;
         margin: 0 auto;
     }
+
     .trade-chat-item-name {
         font-size: 15px;
     }
@@ -746,17 +810,22 @@ body {
         font-size: 20px;
         margin-top: 5px;
     }
+
     .chat-section {
         padding: 6px 3vw;
     }
-    .comment-avatar, .comment-avatar-img {
+
+    .comment-avatar,
+    .comment-avatar-img {
         width: 55px;
         height: 55px;
     }
+
     .comment-username {
         font-size: 22px;
         margin-left: 20px;
     }
+
     .comment-text {
         width: 60%;
         font-size: 20px;
@@ -790,16 +859,20 @@ body {
         padding: 7px 3vw;
         gap: 5px;
     }
+
     .message-input {
         width: 100%;
         font-size: 18px;
         padding: 7px;
     }
-    .add-image-btn, .send-btn {
+
+    .add-image-btn,
+    .send-btn {
         width: 100%;
         font-size: 18px;
         padding: 6px 7px;
     }
+
     /* 編集モーダルも幅調整 */
     .edit-modal-content {
         width: 80%;
@@ -808,22 +881,36 @@ body {
         max-width: unset;
         font-size: 13px;
     }
+
     .edit-modal-textarea {
         min-height: 80px;
         font-size: 18px;
     }
+
     /* 取引完了モーダルの星・余白縮小 */
-    #complete-modal .star { font-size: 65px; }
-    #complete-modal .transaction-complete-content { max-width: 99vw; width: 99vw; }
-    #complete-modal .complete-header, #complete-modal .rating-section, #complete-modal .button-section {
+    #complete-modal .star {
+        font-size: 65px;
+    }
+
+    #complete-modal .transaction-complete-content {
+        max-width: 99vw;
+        width: 99vw;
+    }
+
+    #complete-modal .complete-header,
+    #complete-modal .rating-section,
+    #complete-modal .button-section {
         padding-left: 3vw;
         padding-right: 3vw;
         font-size: 15px;
     }
-    #complete-modal .send-button, #complete-modal .cancel-button {
+
+    #complete-modal .send-button,
+    #complete-modal .cancel-button {
         font-size: 14px;
         padding: 5px 7vw;
         min-width: 88px;
     }
 }
+
 /* =================== レスポンシブここまで =================== */
