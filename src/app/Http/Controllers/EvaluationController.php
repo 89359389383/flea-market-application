@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // 今ログインしている人の情報を使うため
-use App\Models\Trade;                // 取引データを使うため
-use App\Models\Evaluation;           // 評価データを使うため
+use Illuminate\Support\Facades\Auth;
+use App\Models\Trade;
+use App\Models\Evaluation;
 
 class EvaluationController extends Controller
 {

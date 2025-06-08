@@ -197,7 +197,7 @@
                 el.addEventListener('click', function(e) {
                     e.preventDefault();
                     const editModal = document.getElementById('edit-modal');
-                    editModal.style.display = 'flex'; // ここがポイント！
+                    editModal.style.display = 'flex';
                     document.getElementById('edit-body').value = el.dataset.body;
                     document.getElementById('edit-form').action = "{{ url('/trade-message') }}/" + el.dataset.id;
                 });

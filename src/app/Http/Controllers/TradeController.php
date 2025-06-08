@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth; // 今ログインしている人を使うため
-use App\Models\Trade;                // 取引のデータを使うため
+use Illuminate\Support\Facades\Auth;
+use App\Models\Trade;
 
 class TradeController extends Controller
 {

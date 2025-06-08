@@ -52,7 +52,7 @@ class Item extends Model
         return $this->comments->count();
     }
 
-    // --- 追加: 取引情報リレーション（この商品が取引化されている場合）---
+    // --- 取引情報リレーション（この商品が取引化されている場合）---
     public function trade()
     {
         return $this->hasOne(Trade::class);

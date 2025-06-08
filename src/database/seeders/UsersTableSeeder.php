@@ -19,10 +19,10 @@ class UsersTableSeeder extends Seeder
 
         // 【1】ユーザーA（出品者A）
         User::updateOrCreate(
-            ['email' => 'sellerA@example.com'], // 条件：このメールが既にあるか
+            ['email' => 'sellerA@example.com'],
             [
                 'name' => '出品者A',
-                'password' => bcrypt($userPasswordA), // 固定パスワードをハッシュ化して保存
+                'password' => bcrypt($userPasswordA),
                 'postal_code' => '123-4567',
                 'address' => '東京都新宿区',
                 'building' => 'Aビル101',
