@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // 今ログインしている人の情報を使うため
 use Illuminate\Support\Facades\Log;  // ログ出力用
-use Illuminate\Support\Facades\Mail;  // Mailファサード
 use App\Models\Trade;                // 取引データを使うため
 use App\Models\Evaluation;           // 評価データを使うため
-use App\Notifications\TradeCompletedNotification;
 
 class EvaluationController extends Controller
 {

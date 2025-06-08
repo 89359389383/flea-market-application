@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // 今ログインしている人を使うため
 use Illuminate\Support\Facades\Log;  // ログ出力のため追加
 use App\Models\Trade;                // 取引のデータを使うため
-use App\Models\TradeMessage;         // 取引のメッセージ（チャット）を使うため
 
 class TradeController extends Controller
 {

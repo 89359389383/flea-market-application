@@ -5,11 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\UserController;
-
-// 追加分コントローラー
-use App\Http\Controllers\TradeController;           // 取引チャット用
-use App\Http\Controllers\TradeMessageController;    // チャット投稿・編集・削除
-use App\Http\Controllers\EvaluationController;      // 取引評価用
+use App\Http\Controllers\TradeController;
+use App\Http\Controllers\TradeMessageController;
+use App\Http\Controllers\EvaluationController;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
