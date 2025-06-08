@@ -36,15 +36,17 @@
             </div>
         </div>
         　　　　
+        @auth
+        @if ($item->user_id !== auth()->id())
         <form action="{{ route('purchase.show', ['item_id' => $item->id]) }}" method="GET">
             @if ($item->sold)
-            <!-- 売り切れの場合 -->
             <button type="button" class="sold-out-button" disabled>売り切れました</button>
             @else
-            <!-- 売り切れていない場合 -->
             <button type="submit" class="purchase-button">購入手続きへ</button>
             @endif
         </form>
+        @endif
+        @endauth
 
         <h2 class="section-title">商品説明</h2>
         <div class="product-description">

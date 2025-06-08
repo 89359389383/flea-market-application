@@ -55,6 +55,7 @@ body {
 
 .edit-button {
     padding: 8px 25px;
+    margin-top: 26px;
     border: 2px solid #ff3e3e;
     border-radius: 8px;
     color: #ff3e3e;

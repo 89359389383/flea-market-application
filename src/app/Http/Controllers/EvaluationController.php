@@ -127,8 +127,8 @@ class EvaluationController extends Controller
         // 取引完了フラグは「双方評価済み」時にだけ立てたい場合は、ここでは立てない
         // もしくは即完了したいならここで $trade->is_completed = true; $trade->save();
 
-        Log::debug('11. 評価完了、チャット画面へリダイレクト');
-        return redirect()->route('trade.chat.show', $trade_id)
+        Log::debug('11. 評価完了、商品一覧画面へリダイレクト');
+        return redirect()->route('items.index')
             ->with('success', '評価が完了しました！');
     }
 }
