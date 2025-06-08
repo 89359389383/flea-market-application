@@ -76,6 +76,7 @@ Google Chrome の「新しいプロファイル」機能を利用する方法も
 ## URL
 
 -   開発環境: [http://localhost/](http://localhost/)
+-   MailHog: [http://localhost:8025](http://localhost:8025)
 -   phpMyAdmin: [http://localhost:8080/](http://localhost:8080/)
 
 ## ER 図
