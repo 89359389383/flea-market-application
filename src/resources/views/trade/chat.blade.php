@@ -86,6 +86,8 @@
                     <img src="{{ Storage::url($msg->image_path) }}" class="chat-image-thumb" alt="添付画像">
                     @endif
                 </div>
+                {{-- メッセージの編集・削除アクション --}}
+                @if(!$trade->is_completed)
                 <div class="message-actions" style="justify-content: flex-end; width: 40%; margin-right: 0;">
                     <a href="#" class="edit-link message-edit" data-id="{{ $msg->id }}" data-body="{{ $msg->body }}">編集</a>
                     <form action="{{ route('trade.message.destroy', $msg->id) }}" method="POST" style="display:inline;">
@@ -93,6 +95,7 @@
                         <button type="submit" class="message-delete" style="background:none;border:none;">削除</button>
                     </form>
                 </div>
+                @endif
             </div>
             @else
             <div class="partner-message comment">
@@ -129,6 +132,7 @@
         @endif
 
         {{-- 新規投稿フォーム --}}
+        @if(!$trade->is_completed)
         <form action="{{ route('trade.message.store', $trade->id) }}" method="POST" enctype="multipart/form-data" class="input-section" id="chat-form">
             @csrf
             <input type="text" class="message-input" name="body" id="chat-body"
@@ -147,6 +151,7 @@
                 <button id="remove-preview-btn" type="button" style="display:none; position:absolute; top:-8px; right:-8px; background:#fff; color:#888; border:none; font-size:20px; width:28px; height:28px; border-radius:50%; box-shadow:0 2px 6px #aaa; cursor:pointer;">×</button>
             </div>
         </form>
+        @endif
 
         {{-- 編集用モーダル（隠しフォーム）--}}
         <div id="edit-modal" class="edit-modal">
