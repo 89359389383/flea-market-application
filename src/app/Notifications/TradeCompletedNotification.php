@@ -42,8 +42,8 @@ class TradeCompletedNotification extends Notification
         return (new MailMessage)
             ->subject('取引完了のご連絡')
             ->greeting($notifiable->name . ' 様')
-            ->line('あなたの商品「' . $this->trade->item->name . '」の取引が完了しました。')
-            ->line('評価者：' . $this->evaluator->name . ' さんが取引を評価しました。')
+            ->line('評価者：' . $this->evaluator->name . ' さんがあなたの商品「' . $this->trade->item->name . '」の評価を送信しました。')
+            ->line('評価者：' . $this->evaluator->name . ' さんを評価してください。')
             ->action('取引チャット画面へ', url(route('trade.chat.show', $this->trade->id)))
             ->line('今後ともCOACHTECHフリマをよろしくお願いいたします。');
     }
